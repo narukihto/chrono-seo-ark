@@ -4,13 +4,10 @@
 //! Orchestrates high-frequency SEO signal capture and geometric stabilization.
 //! Developed by The First Architect.
 
-mod engine;
-mod protocols;
-
-use crate::engine::stability::StabilityGuard;
-use crate::protocols::cherenkov_lens::CherenkovLens;
-use crate::protocols::liquid_sync::LiquidSync;
-use crate::protocols::temporal_projectile::TemporalProjectile;
+use chrono_seo_agent::engine::stability::StabilityGuard;
+use chrono_seo_agent::protocols::cherenkov_lens::CherenkovLens;
+use chrono_seo_agent::protocols::liquid_sync::LiquidSync;
+use chrono_seo_agent::protocols::temporal_projectile::TemporalProjectile;
 use std::env;
 use std::time::Instant;
 
