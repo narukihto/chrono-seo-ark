@@ -11,14 +11,15 @@ use std::time::{Instant, Duration};
 #[test]
 fn test_geometric_calculation_latency() {
     // Target: Sub-microsecond execution for mathematical operations.
-    let poles = 12.0; // Dodecagon
+    let poles = 12.0; // Dodecagon configuration
     let momentum = 85.5;
     
     let start = Instant::now();
     
     // Core Penta-V math cycle
+    // Using '_' prefix to silence unused variable warnings while maintaining the bench logic
     let immunity = GeometricCalculator::calculate_immunity(poles);
-    let impact = GeometricCalculator::calculate_impact(momentum, immunity);
+    let _impact = GeometricCalculator::calculate_impact(momentum, immunity);
     
     let duration = start.elapsed();
     
