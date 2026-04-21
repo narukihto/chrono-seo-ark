@@ -18,6 +18,7 @@ path = "src/main.rs"
 [dependencies]
 # Core async runtime and network stack
 tokio = { version = "1.35", features = ["full"] }
+# UPDATED: Added json and rustls-tls for secure, live API communication
 reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
 
 # Serialization and Data Architecture
@@ -28,6 +29,7 @@ chrono = { version = "0.4", features = ["serde"] }
 # Configuration and Logic Utilities
 config = "0.13"
 toml = "0.8"
+# UPDATED: Explicitly enabling futures for parallel signal capture (join_all)
 futures = "0.3"
 
 [dev-dependencies]
