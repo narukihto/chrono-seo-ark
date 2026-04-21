@@ -27,11 +27,10 @@ async fn test_vault_schema_integrity() {
     let vault_content = fs::read_to_string(vault_path)
         .expect("Consistency Error: Truth-Vault file not found after deployment.");
 
-    // TRICK: Using .trim() addresses the "trailing characters" error found in CI logs
     let v: Value = serde_json::from_str(vault_content.trim())
-        .expect("Consistency Error: Vault contains invalid JSON structure (trailing bits detected).");
+        .expect("Consistency Error: Vault contains invalid JSON structure.");
 
-    // 4. Schema Assertions (Aligned with 1.0.0-ARK Specification)
+    // 4. Schema Assertions
     assert_eq!(v["protocol_version"], "1.0.0-ARK");
     assert!(v.get("pulse_timestamp").is_some());
     assert!(v.get("signals_count").is_some());
@@ -40,14 +39,14 @@ async fn test_vault_schema_integrity() {
 
 #[test]
 fn test_vault_atomic_overwrite() {
-    // This test ensures that the vault is fully cleared before writing new data.
-    let path = "../vault/truth-vault.json";
+    // FIX: Use a unique temporary path for this test to avoid collision with concurrent tests
+    let path = "../vault/truth-vault-atomic-test.json";
     
     if let Some(parent) = Path::new(path).parent() {
         fs::create_dir_all(parent).unwrap();
     }
     
-    // 1. Scenario: Simulate a large corrupted file (forcing trailing characters)
+    // 1. Scenario: Simulate a large corrupted file
     let large_data = "{\"old_junk\": \"".to_owned() + &"X".repeat(10000) + "\"}"; 
     fs::write(path, large_data).unwrap();
 
@@ -59,12 +58,12 @@ fn test_vault_atomic_overwrite() {
         "data": []
     });
 
-    // 3. Execution: Use OpenOptions with truncate(true) to ensure a clean slate
+    // 3. Execution: Open with truncate to wipe the file
     {
         let mut file = fs::OpenOptions::new()
             .write(true)
             .create(true)
-            .truncate(true) // CRITICAL FIX: Wipes all old data before writing starts
+            .truncate(true) 
             .open(path)
             .expect("Failed to open vault with truncate");
 
@@ -73,10 +72,13 @@ fn test_vault_atomic_overwrite() {
         file.sync_all().expect("FS Sync failed");
     }
 
-    // 4. Validation: Final read and parse check
+    // 4. Validation
     let final_content = fs::read_to_string(path).expect("Failed to read vault");
     let final_json: Value = serde_json::from_str(final_content.trim())
-        .expect("Consistency Error: Trailing characters detected even after truncation.");
+        .expect("Consistency Error: Trailing characters detected.");
     
     assert_eq!(final_json, expected_json, "Atomic overwrite failed: Data mismatch.");
+
+    // Cleanup: Remove the temporary test file
+    let _ = fs::remove_file(path);
 }
