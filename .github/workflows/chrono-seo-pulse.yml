@@ -1,0 +1,84 @@
+name: Chrono-SEO Pulse
+
+on:
+  schedule:
+    # النبض كل 6 دقائق (تردد الأرك)
+    - cron: '*/6 * * * *'
+  workflow_dispatch: # يسمح لك بتشغيل النبضة يدوياً للاختبار
+
+permissions:
+  contents: write
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 
+
+    steps:
+      - name: 🛰️ Synchronizing Repository
+        uses: actions/checkout@v4
+
+      - name: 🦀 Initializing Rust (Stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: ⚙️ Caching Binary Artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            agent/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 🛡️ Setting Environment Guard
+        # هذا الجزء يضمن وجود قيمة للمفتاح حتى لو نسيت وضعه في الـ Secrets
+        run: |
+          if [ -z "${{ secrets.ARK_API_KEY }}" ]; then
+            echo "ARK_API_KEY=ARK_SIMULATION_KEY_$(date +%s)" >> $GITHUB_ENV
+            echo "⚠️ [SYSTEM] API Key not found. Using Simulation Key."
+          else
+            echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" >> $GITHUB_ENV
+          fi
+
+      - name: 🧪 Verifying Geometric Integrity (Tests)
+        run: |
+          cd agent
+          cargo test --release
+
+      - name: ⏱️ Performance Profiling (Benches)
+        run: |
+          cd agent
+          cargo bench --no-run 
+
+      - name: ⚡ Executing Penta-V Pulse
+        if: success()
+        env:
+          # نستخدم المتغير الذي تم تجهيزه في خطوة Guard
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd agent
+          cargo run --release
+
+      - name: 📊 Generating Performance Report
+        if: success()
+        run: python3 scripts/speed_reporter.py
+
+      - name: 🛡️ Committing to Truth-Vault
+        if: success()
+        run: |
+          git config --global user.name "Ark Systems (Pulse-Bot)"
+          git config --global user.email "bot@ark-systems.io"
+          git add vault/truth-vault.json reports/performance_log.md
+          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 19 Deployed" || echo "No changes to commit"
+          git push
+
+      - name: 📢 Triggering Webhook Observer
+        if: success()
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          if [ ! -z "$WEBHOOK_URL" ]; then
+            curl -X POST $WEBHOOK_URL -H "Content-Type: application/json" -d @vault/truth-vault.json
+          fi
