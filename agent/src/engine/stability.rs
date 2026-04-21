@@ -9,7 +9,10 @@ use super::geometry::GeometricCalculator;
 use super::{SECURE_CORE, CORE_BASE};
 
 pub struct StabilityGuard {
-    /// The number of geometric poles currently active (N).
+    /// The number of geometric poles currently active ($N$).
+    /// Marked as `allow(dead_code)` to maintain architectural data even when
+    /// logic primarily relies on Φ (phi).
+    #[allow(dead_code)]
     pub poles: f64,
     /// The pre-calculated geometric immunity coefficient (Φ).
     pub phi: f64,
@@ -35,8 +38,7 @@ impl StabilityGuard {
 
     /// Determines if a calculated impact is safe for the SECURE_CORE.
     /// 
-    /// A signal is considered 'stable' if (CORE_BASE - impact) remains
-    /// strictly above the SECURE_CORE (0.05).
+    /// A signal is considered 'stable' if $(CORE\_BASE - impact) > SECURE\_CORE$.
     /// 
     /// # Arguments
     /// * `impact` - The calculated stability loss.
