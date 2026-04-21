@@ -1,47 +1,5 @@
-[package]
-name = "chrono-seo-agent"
-version = "1.0.0"
-authors = ["The First Architect <isaac.andrew@ark-systems.io>"]
-edition = "2021"
-description = "High-performance SEO pulse agent powered by Penta-V Geometric Stability."
-
-[dependencies]
-# Async runtime for Protocol 9 (Liquid Synchrony)
-tokio = { version = "1.35", features = ["full"] }
-
-# High-speed HTTP client for Protocol 15 (Cherenkov's Lens)
-reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
-
-# Serialization for Protocol 19 (Temporal Projectile)
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-
-# Time management for pulse timestamps
-chrono = { version = "0.4", features = ["serde"] }
-
-# Configuration parsing for ark_settings.toml
-config = "0.13"
-toml = "0.8"
-
-# Shared logic from the local engine and protocols modules
-# These are handled via 'mod' declarations in main.rs
-
-[dev-dependencies]
-# Nanosecond-level profiling
-criterion = { version = "0.5", features = ["async_tokio"] }
-
-[profile.release]
-# Optimization Level 3: Full aggressive optimizations
-opt-level = 3
-# Link-Time Optimization: Cross-language/crate optimizations
-lto = true
-# Codegen Units: Higher optimization at the cost of compile time
-codegen_units = 1
-# Panic Behavior: Abort on panic to reduce binary size and overhead
-panic = 'abort'
-# Strip symbols to keep the agent lightweight for CI runners
-strip = true
-
-[[bench]]
-name = "engine_performance"
-harness = false
+[workspace]
+members = [
+    "agent",
+]
+resolver = "2"
