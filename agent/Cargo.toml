@@ -3,16 +3,12 @@ name = "chrono-seo-agent"
 version = "1.0.0"
 authors = ["The First Architect <isaac.andrew@ark-systems.io>"]
 edition = "2021"
-description = "High-performance SEO pulse agent powered by Penta-V Geometric Stability."
 
 [dependencies]
-# الأساسيات للنبض والمزامنة
 tokio = { version = "1.35", features = ["full"] }
 reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-
-# الوقت والإعدادات
 chrono = { version = "0.4", features = ["serde"] }
 config = "0.13"
 toml = "0.8"
@@ -21,13 +17,33 @@ futures = "0.3"
 [dev-dependencies]
 criterion = { version = "0.5", features = ["async_tokio"] }
 
+# --- تصحيح المسارات ---
+# نخبر المترجم أن يخرج لمجلد الـ Root ليجد ملفات الـ Bench و Tests
+
+[[bench]]
+name = "engine_performance"
+path = "../benches/engine_performance.rs"
+harness = false
+
+[[test]]
+name = "stress_test_geometric"
+path = "../tests/stress_test_geometric.rs"
+
+[[test]]
+name = "protocol_integrity"
+path = "../tests/protocol_integrity.rs"
+
+[[test]]
+name = "vault_consistency"
+path = "../tests/vault_consistency.rs"
+
+[[test]]
+name = "latency_benchmarks"
+path = "../tests/latency_benchmarks.rs"
+
 [profile.release]
 opt-level = 3
 lto = true
 codegen-units = 1
 panic = 'abort'
-strip = true # لتقليل حجم الملف النهائي في CI
-
-[[bench]]
-name = "engine_performance"
-harness = false
+strip = true
