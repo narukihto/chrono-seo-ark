@@ -7,9 +7,11 @@
 
 use crate::protocols::SeoSignal;
 use std::error::Error;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::Write;
+use std::path::Path;
 use chrono::Utc;
+use serde_json::json;
 
 pub struct TemporalProjectile;
 
@@ -20,28 +22,36 @@ impl TemporalProjectile {
     /// # Arguments
     /// * `signals` - The synchronized and filtered SEO signals from Protocol 9.
     pub async fn deploy(signals: Vec<SeoSignal>) -> Result<(), Box<dyn Error>> {
-        // Path to the sovereign data storage
-        let vault_path = "../vault/truth-vault.json";
+        // Path to the sovereign data storage (Relative to agent execution point)
+        let vault_dir = "../vault";
+        let vault_file = "../vault/truth-vault.json";
 
-        // Protocol 19 Logic: Metadata injection for temporal tracking.
-        // We wrap the signals in a 'PulsePacket' to include a timestamp.
-        let pulse_packet = serde_json::json!({
+        // 1. Vault Resilience: Ensure the directory exists before attempting deployment.
+        // This prevents the 'No such file or directory' error during fresh CI pulses.
+        if !Path::new(vault_dir).exists() {
+            fs::create_dir_all(vault_dir)?;
+            println!("📁 [PROTOCOL 19] Vault directory initialized.");
+        }
+
+        // 2. Pulse Packet Assembly: Metadata injection for temporal tracking.
+        // Matches the '1.0.0-ARK' specification seen in the Truth-Vault logs.
+        let pulse_packet = json!({
             "pulse_timestamp": Utc::now().to_rfc3339(),
             "protocol_version": "1.0.0-ARK",
             "signals_count": signals.len(),
             "data": signals
         });
 
-        // Serialize the packet to a compact JSON string
+        // 3. Serialization: Transform to pretty-printed JSON for auditability and manual review.
         let payload = serde_json::to_string_pretty(&pulse_packet)?;
 
-        // Atomic Write: Ensure the vault is updated instantaneously.
-        let mut file = File::create(vault_path)?;
+        // 4. Atomic Pulse Deployment: Instantaneous file creation and stream writing.
+        // Using File::create ensures the previous pulse is overwritten by the latest Truth.
+        let mut file = File::create(vault_file)?;
         file.write_all(payload.as_bytes())?;
 
-        // Protocol 19 emphasizes 'Instant Deployment'. 
-        // Once this file is written, the GitHub Action will commit and push,
-        // triggering the 'Temporal Impact' across all connected sites.
+        println!("🚀 [PROTOCOL 19] Temporal Impact Complete. {} signals projected to Vault.", signals.len());
+        
         Ok(())
     }
 }
