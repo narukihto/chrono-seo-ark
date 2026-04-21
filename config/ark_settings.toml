@@ -1,1 +1,35 @@
+# config/ark_settings.toml
 
+[engine]
+# The number of geometric poles (N). 
+# Higher N = Higher Geometric Immunity (Φ) but stricter filtering.
+# Recommended: 12.0 (Dodecagon) for high-traffic volatility.
+poles = 12.0
+
+# SECURE_CORE: The red-line for system integrity.
+# Any signal that drops stability below this is purged.
+secure_core_threshold = 0.05
+
+[pulse]
+# Frequency in minutes. Note: Must align with GitHub Workflow cron.
+interval_minutes = 6
+
+# Maximum number of signals to commit to the Truth-Vault per pulse.
+max_signal_capacity = 10
+
+[scanning]
+# Protocol 15: Cherenkov Lens Target Nodes
+targets = [
+    "https://api.ark-systems.io/v1/signals/trends",
+    "https://api.ark-systems.io/v1/signals/social"
+]
+
+[auth]
+# API Key for high-frequency signal access. 
+# Store the actual value in GitHub Secrets (ARK_API_KEY).
+api_key = "${ARK_API_KEY}"
+
+[notifications]
+# Set to true to trigger the webhook_handler.py after each pulse.
+enable_webhooks = true
+webhook_url = "https://your-observer-app.com/ark-pulse-notify"
