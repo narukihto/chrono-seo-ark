@@ -6,25 +6,23 @@
 
 use chrono_seo_agent::protocols::SeoSignal;
 use chrono_seo_agent::protocols::temporal_projectile::TemporalProjectile;
-use serde_json::Value;
-use std::fs::{self, File};
+use serde_json::{json, Value};
+use std::fs;
 use std::io::Write;
 use std::path::Path;
 
 #[tokio::test]
 async fn test_vault_schema_integrity() {
     // 1. Setup: Create a controlled signal set
-    // Using the same structure that our engine produces
     let signals = vec![
         SeoSignal::new("Post-Quantum Cryptography".to_string(), 95.0),
     ];
 
     // 2. Execution: Deploy to the vault path
-    // Protocol 19 now handles directory creation and metadata wrapping internally.
     let deployment_result = TemporalProjectile::deploy(signals).await;
     assert!(deployment_result.is_ok(), "Protocol 19 deployment failed during test.");
 
-    // 3. Validation: Read the generated vault from the Root-relative path
+    // 3. Validation: Read the generated vault
     let vault_path = "../vault/truth-vault.json";
     let vault_content = fs::read_to_string(vault_path)
         .expect("Consistency Error: Truth-Vault file not found after deployment.");
@@ -33,58 +31,58 @@ async fn test_vault_schema_integrity() {
         .expect("Consistency Error: Vault contains invalid JSON structure.");
 
     // 4. Schema Assertions (Aligned with 1.0.0-ARK Specification)
-    // Check for mandatory Ark Metadata as seen in the Truth-Vault logs
     assert!(v.get("pulse_timestamp").is_some(), "Schema Violation: Missing pulse_timestamp");
     assert_eq!(v["protocol_version"], "1.0.0-ARK", "Schema Violation: Incorrect protocol_version");
     assert!(v.get("signals_count").is_some(), "Schema Violation: Missing signals_count");
     assert!(v.get("data").is_some(), "Schema Violation: Missing data array");
 
-    // Check data integrity within the "data" wrapper
     let data = v["data"].as_array().expect("Schema Violation: 'data' field is not an array");
     assert!(!data.is_empty(), "Consistency Error: Vault deployed with empty data stream");
 
     let first_signal = &data[0];
     assert!(first_signal.get("keyword").is_some(), "Schema Violation: Signal missing 'keyword'");
     assert!(first_signal.get("momentum").is_some(), "Schema Violation: Signal missing 'momentum'");
-    
-    // Note: stability_score is mapped from our engine's stability logic
     assert!(first_signal.get("stability_score").is_some(), "Schema Violation: Signal missing 'stability_score'");
 }
 
 #[test]
 fn test_vault_atomic_overwrite() {
     // This test ensures that the vault is overwritten, not appended to.
-    // Atomic deployment is critical for Truth-Vault integrity.
-    
     let path = "../vault/truth-vault.json";
     
-    // 1. Ensure directory exists for the test environment
+    // 1. Ensure directory exists
     if let Some(parent) = Path::new(path).parent() {
         fs::create_dir_all(parent).unwrap();
     }
     
-    // 2. Scenario: Simulate a large corrupted or old vault state (5000 bytes of noise)
+    // 2. Scenario: Simulate a large corrupted/old vault state
     let large_data = "X".repeat(5000); 
     fs::write(path, large_data).unwrap();
 
-    // 3. Execution: Small data pulse injection with explicit IO flushing
-    let small_data = r#"{"pulse_timestamp": "2026-04-21T00:00:00Z", "data": []}"#;
-    
-    // We use a scoped block to ensure the file handle is closed and flushed to disk
+    // 3. Define the expected structure as a JSON Value to allow flexible field ordering
+    let expected_json = json!({
+        "pulse_timestamp": "2026-04-21T00:00:00Z",
+        "protocol_version": "1.0.0-ARK",
+        "signals_count": 0,
+        "data": []
+    });
+
+    // 4. Execution: Write and sync to disk
     {
-        let mut file = File::create(path).expect("Failed to create vault file");
-        file.write_all(small_data.as_bytes()).expect("Failed to write to vault");
-        file.sync_all().expect("FS Sync failed"); // Force the OS to commit bits to disk
+        let mut file = fs::File::create(path).expect("Failed to create vault file");
+        let payload = serde_json::to_string_pretty(&expected_json).unwrap();
+        file.write_all(payload.as_bytes()).expect("Failed to write to vault");
+        file.sync_all().expect("FS Sync failed");
     }
 
-    // 4. Validation: Read the file back
+    // 5. Validation: Compare as JSON Objects (Value) instead of raw strings
+    // This ignores field order and formatting differences (e.g., whitespace)
     let final_content = fs::read_to_string(path).expect("Failed to read vault");
+    let final_json: Value = serde_json::from_str(&final_content).expect("Invalid JSON written to vault");
     
-    // The content must be EXACTLY the small_data. If it's empty or still contains 'X', 
-    // the atomicity of the operation is compromised.
     assert_eq!(
-        final_content, 
-        small_data, 
-        "Consistency Error: Vault was not atomically overwritten. Buffer mismatch detected."
+        final_json, 
+        expected_json, 
+        "Consistency Error: Vault logic mismatch. Field integrity or atomicity compromised."
     );
 }
