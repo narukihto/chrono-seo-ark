@@ -1,1 +1,27 @@
-
+{
+  "pulse_timestamp": "2026-04-20T15:48:00Z",
+  "protocol_version": "1.0.0-ARK",
+  "signals_count": 4,
+  "data": [
+    {
+      "keyword": "Post-Quantum SEO",
+      "momentum": 92.5,
+      "stability_score": 0.046
+    },
+    {
+      "keyword": "LWE Encryption Protocols",
+      "momentum": 88.0,
+      "stability_score": 0.088
+    },
+    {
+      "keyword": "Geometric Stability Logic",
+      "momentum": 75.2,
+      "stability_score": 0.125
+    },
+    {
+      "keyword": "Penta-V Architecture",
+      "momentum": 62.1,
+      "stability_score": 0.155
+    }
+  ]
+}
