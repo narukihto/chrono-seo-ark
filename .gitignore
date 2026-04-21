@@ -1,1 +1,36 @@
+# --- ARK SYSTEMS: SOVEREIGN EXCLUSIONS ---
 
+# [Rust] Build Artifacts
+/target/
+**/*.rs.bk
+Cargo.lock # Optional: Keep if you want deterministic builds, exclude if you want latest
+
+# [Security] Sensitive Data
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# [OS] System Junk
+.DS_Store
+Thumbs.db
+.directory
+
+# [Python] Cache & Reports
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+/reports/*.log
+
+# [Vault] Local Testing
+# We ignore local copies of the vault during dev; 
+# the production vault is managed by the GitHub Action.
+vault/local_test_vault.json
+
+# [IDEs] Tool-specific
+.vscode/
+.idea/
+*.swp
+*.swo
