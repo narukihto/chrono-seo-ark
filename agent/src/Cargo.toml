@@ -1,1 +1,40 @@
+[package]
+name = "chrono-seo-agent"
+version = "1.0.0"
+authors = ["The First Architect <isaac.andrew@ark-systems.io>"]
+edition = "2021"
+description = "High-performance SEO pulse agent powered by Penta-V Geometric Stability."
 
+[dependencies]
+# Async runtime for Liquid Synchrony (Protocol 9)
+tokio = { version = "1.35", features = ["full"] }
+
+# High-speed HTTP client for Cherenkov's Lens (Protocol 15)
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+
+# Serialization for the Truth-Vault (Protocol 19)
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Configuration and Time management
+config = "0.13"
+chrono = { version = "0.4", features = ["serde"] }
+
+# Low-level performance utilities
+futures = "0.3"
+toml = "0.8"
+
+[dev-dependencies]
+# Benchmarking suite for nanosecond profiling
+criterion = { version = "0.5", features = ["async_tokio"] }
+
+[profile.release]
+# Optimization for maximum execution speed in GitHub CI
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = 'abort'
+
+[[bench]]
+name = "engine_performance"
+harness = false
