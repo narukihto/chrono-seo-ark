@@ -5,7 +5,6 @@
 //! Penta-V Engine maintains structural integrity under pressure.
 
 use chrono_seo_agent::engine::stability::StabilityGuard;
-use chrono_seo_agent::engine::geometry::GeometricCalculator;
 
 #[test]
 fn test_geometric_saturation_point() {
