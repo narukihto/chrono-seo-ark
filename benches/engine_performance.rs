@@ -5,12 +5,14 @@
 //! Penta-V core calculations and the Stability Guard enforcement.
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+// Standardized imports using the new library structure
 use chrono_seo_agent::engine::stability::StabilityGuard;
 use chrono_seo_agent::engine::geometry::GeometricCalculator;
+use std::time::Duration;
 
 /// Benchmark the raw geometric immunity calculation (Φ).
 fn bench_geometry_phi(c: &mut Criterion) {
-    let poles = 12.0; // Dodecagon
+    let poles = 12.0; // Dodecagon configuration
 
     c.bench_function("Penta-V: Φ Calculation (Dodecagon)", |b| {
         b.iter(|| {
@@ -27,6 +29,7 @@ fn bench_stability_check(c: &mut Criterion) {
 
     c.bench_function("Penta-V: Stability Check Cycle", |b| {
         b.iter(|| {
+            // Utilizing the StabilityGuard logic
             let impact = guard.calculate_impact(black_box(momentum));
             guard.is_stable(black_box(impact))
         })
@@ -38,6 +41,9 @@ fn bench_stability_check(c: &mut Criterion) {
 fn bench_scaling_performance(c: &mut Criterion) {
     let mut group = c.benchmark_group("Penta-V: Scaling");
     
+    // Reduced sample size for CI environments to prevent timeout
+    group.sample_size(20); 
+
     for n in [3.0, 12.0, 100.0, 1000.0].iter() {
         group.bench_with_input(format!("Poles-{}", n), n, |b, &n| {
             b.iter(|| GeometricCalculator::calculate_immunity(black_box(n)))
@@ -46,5 +52,13 @@ fn bench_scaling_performance(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_geometry_phi, bench_stability_check, bench_scaling_performance);
+// Optimized Criterion configuration for GitHub Actions
+criterion_group! {
+    name = benches;
+    config = Criterion::default()
+        .measurement_time(Duration::from_secs(10)) // Limit total time per bench
+        .warm_up_time(Duration::from_secs(3));    // Quick warm up
+    targets = bench_geometry_phi, bench_stability_check, bench_scaling_performance
+}
+
 criterion_main!(benches);
