@@ -3,22 +3,39 @@ name = "chrono-seo-agent"
 version = "1.0.0"
 authors = ["The First Architect <isaac.andrew@ark-systems.io>"]
 edition = "2021"
+description = "High-performance SEO pulse agent powered by Penta-V Geometric Stability."
+
+[lib]
+# Defines the library component to expose modules to external integration tests.
+name = "chrono_seo_agent"
+path = "src/lib.rs"
+
+[[bin]]
+# The main entry point for the autonomous pulse execution.
+name = "chrono-seo-agent"
+path = "src/main.rs"
 
 [dependencies]
+# Core async runtime and network stack
 tokio = { version = "1.35", features = ["full"] }
 reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+
+# Serialization and Data Architecture
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
+
+# Configuration and Logic Utilities
 config = "0.13"
 toml = "0.8"
 futures = "0.3"
 
 [dev-dependencies]
+# Performance profiling suite
 criterion = { version = "0.5", features = ["async_tokio"] }
 
-# --- تصحيح المسارات ---
-# نخبر المترجم أن يخرج لمجلد الـ Root ليجد ملفات الـ Bench و Tests
+# --- PATH CORRECTIONS FOR INTEGRATION TESTING ---
+# Mapping external files located in the Workspace Root to the Agent crate scope.
 
 [[bench]]
 name = "engine_performance"
@@ -42,6 +59,7 @@ name = "latency_benchmarks"
 path = "../tests/latency_benchmarks.rs"
 
 [profile.release]
+# Maximum optimization profile for CI-based high-frequency execution.
 opt-level = 3
 lto = true
 codegen-units = 1
