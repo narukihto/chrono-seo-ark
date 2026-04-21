@@ -7,7 +7,8 @@
 use chrono_seo_agent::protocols::SeoSignal;
 use chrono_seo_agent::protocols::temporal_projectile::TemporalProjectile;
 use serde_json::Value;
-use std::fs;
+use std::fs::{self, File};
+use std::io::Write;
 use std::path::Path;
 
 #[tokio::test]
@@ -57,21 +58,33 @@ fn test_vault_atomic_overwrite() {
     
     let path = "../vault/truth-vault.json";
     
-    // Ensure directory exists for the test
+    // 1. Ensure directory exists for the test environment
     if let Some(parent) = Path::new(path).parent() {
         fs::create_dir_all(parent).unwrap();
     }
     
-    // Scenario: Simulate a large corrupted or old vault state
+    // 2. Scenario: Simulate a large corrupted or old vault state (5000 bytes of noise)
     let large_data = "X".repeat(5000); 
     fs::write(path, large_data).unwrap();
 
-    // Small data pulse injection
+    // 3. Execution: Small data pulse injection with explicit IO flushing
     let small_data = r#"{"pulse_timestamp": "2026-04-21T00:00:00Z", "data": []}"#;
-    fs::write(path, small_data).unwrap();
-
-    let final_content = fs::read_to_string(path).unwrap();
     
-    // The file size must exactly match the new pulse, proving the old data was purged
-    assert_eq!(final_content, small_data, "Consistency Error: Vault was not atomically overwritten.");
+    // We use a scoped block to ensure the file handle is closed and flushed to disk
+    {
+        let mut file = File::create(path).expect("Failed to create vault file");
+        file.write_all(small_data.as_bytes()).expect("Failed to write to vault");
+        file.sync_all().expect("FS Sync failed"); // Force the OS to commit bits to disk
+    }
+
+    // 4. Validation: Read the file back
+    let final_content = fs::read_to_string(path).expect("Failed to read vault");
+    
+    // The content must be EXACTLY the small_data. If it's empty or still contains 'X', 
+    // the atomicity of the operation is compromised.
+    assert_eq!(
+        final_content, 
+        small_data, 
+        "Consistency Error: Vault was not atomically overwritten. Buffer mismatch detected."
+    );
 }
