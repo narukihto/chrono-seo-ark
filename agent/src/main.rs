@@ -17,18 +17,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🛡️ [ARK] Initializing Chrono-SEO Pulse Agent...");
 
     // --- SECURE CONFIGURATION ---
-    // Extracting the sovereign API Key. Falls back to Simulation if environment is restricted.
     let api_key = env::var("ARK_API_KEY").unwrap_or_else(|_| {
         println!("⚠️ [ARK] WARNING: ARK_API_KEY not detected. Operating in Simulation Mode.");
         "SIM_PROTOTYPE".to_string()
     });
+
+    // Check for debug flag in arguments
+    let args: Vec<String> = env::args().collect();
+    let debug_mode = args.contains(&"--debug".to_string());
 
     // --- 1. ARCHITECTURAL STABILITY INITIALIZATION ---
     let guard = StabilityGuard::new(12.0);
     println!("🏛️ [ARK] Penta-V Stability Guard Active. Poles: 12.0, Φ: {:.2}", guard.phi);
 
     // --- 2. PROTOCOL 15: CHERENKOV'S LENS ---
-    // Capturing high-frequency photons from the global data stream.
     let scan_result = CherenkovLens::scan(&api_key).await;
     
     let raw_signals = match scan_result {
@@ -43,28 +45,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // --- 3. PROTOCOL 9: LIQUID SYNCHRONY & PURGE PROTOCOL ---
-    // Filtering signals and executing the hard-delete for legacy 'Quantum' noise.
     let mut processed_keywords = LiquidSync::process(&guard, raw_signals).await;
     
-    // CRITICAL: Hard-purge any signal containing 'Quantum' to reset the Vault's focus.
     processed_keywords.retain(|s| !s.keyword.to_lowercase().contains("quantum"));
     
-    // Ensure we maintain at least the Top 5 unique signals if available.
     if processed_keywords.len() < 5 {
         processed_keywords.sort_by(|a, b| b.momentum.partial_cmp(&a.momentum).unwrap_or(std::cmp::Ordering::Equal));
     }
     
-    // Limit projection to 8 high-integrity signals.
     processed_keywords.truncate(8);
 
     if processed_keywords.is_empty() {
         println!("🌑 [ARK] No stable signals survived the Purge Protocol. System idling.");
     } else {
         println!("💎 [ARK] Liquid Synchrony identified {} clean stable keywords.", processed_keywords.len());
+        
+        // تفعيل كشف الإشارات في وضع الديباج فقط
+        if debug_mode {
+            println!("🔍 [DEBUG] Purified Signals Map:");
+            for (index, signal) in processed_keywords.iter().enumerate() {
+                println!("   |-- Signal {:02}: [{}] (Momentum: {:.4})", index + 1, signal.keyword, signal.momentum);
+            }
+        }
     }
 
     // --- 4. PROTOCOL 19: TEMPORAL PROJECTILE ---
-    // Final deployment of the purified dataset to the Truth-Vault.
     match TemporalProjectile::deploy(processed_keywords).await {
         Ok(_) => {
             let pulse_duration = start_pulse.elapsed();
