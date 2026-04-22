@@ -31,7 +31,8 @@ async fn test_vault_schema_integrity() {
         .expect("Consistency Error: Vault contains invalid JSON structure.");
 
     // 4. Schema Assertions
-    assert_eq!(v["protocol_version"], "1.0.0-ARK");
+    // Updated to match the current Architectural Version: 1.1.0-PURIFIED
+    assert_eq!(v["protocol_version"], "1.1.0-PURIFIED");
     assert!(v.get("pulse_timestamp").is_some());
     assert!(v.get("signals_count").is_some());
     assert!(v.get("data").is_some());
@@ -53,7 +54,7 @@ fn test_vault_atomic_overwrite() {
     // 2. Define the expected pulse structure
     let expected_json = json!({
         "pulse_timestamp": "2026-04-21T00:00:00Z",
-        "protocol_version": "1.0.0-ARK",
+        "protocol_version": "1.1.0-PURIFIED",
         "signals_count": 0,
         "data": []
     });
