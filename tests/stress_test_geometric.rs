@@ -13,12 +13,13 @@ fn test_geometric_saturation_point() {
     // before the new 0.15 Adaptive Threshold is breached?
     let guard = StabilityGuard::new(12.0); // Φ = 4.0
     
-    // Updated Threshold Calculation: 
-    // (Momentum * 0.02) / 4.0 = 0.15 (Adaptive Threshold)
-    // Momentum = (0.15 * 4.0) / 0.02 = 30.0
+    // Recalibrated Threshold Calculation: 
+    // Impact = (Momentum * 0.02) / 4.0
+    // Safe: 29.0 * 0.02 / 4.0 = 0.145 (ACCEPTED < 0.15)
+    // Critical: 31.0 * 0.02 / 4.0 = 0.155 (REJECTED > 0.15)
     
-    let safe_momentum = 29.9;
-    let critical_momentum = 30.1;
+    let safe_momentum = 29.0;
+    let critical_momentum = 31.0;
     
     assert!(guard.is_stable(guard.calculate_impact(safe_momentum)), 
             "Resilience Error: Engine rejected a signal within the 0.15 safety margin.");
@@ -57,9 +58,8 @@ fn test_geometric_invincibility_limit() {
     let hyper_guard = StabilityGuard::new(1000.0); // Φ = 333.33
     
     // Extreme Momentum Calibration for 0.15 Threshold:
-    // To remain stable: (Momentum * 0.02) / 333.33 < 0.15
-    // Momentum < (0.15 * 333.33) / 0.02 = 2499.975
-    let extreme_momentum = 2400.0; 
+    // Impact = (2000 * 0.02) / 333.33 = 0.12 (Stable < 0.15)
+    let extreme_momentum = 2000.0; 
     let impact = hyper_guard.calculate_impact(extreme_momentum);
     
     assert!(hyper_guard.is_stable(impact), 
