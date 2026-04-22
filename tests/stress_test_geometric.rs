@@ -14,8 +14,9 @@ fn test_geometric_saturation_point() {
     
     // IMPACT CALCULATION: (Momentum * 0.02) / 4.0
     // Safe: 20.0 * 0.02 / 4.0 = 0.10 (ACCEPTED < 0.15)
-    // Critical: 40.0 * 0.02 / 4.0 = 0.20 (REJECTED > 0.15)
-    // Note: In Hunter Mode (Live), 40.0 would pass (0.20 < 0.45).
+    // Critical: 40.0 * 0.02 / 4.0 = 0.20 (REJECTED > 0.15 in Test Mode)
+    // Note: In Hunter Mode (Live), 40.0 would pass (0.20 < 0.45), 
+    // ensuring our 8 signals are captured in production.
     
     let safe_momentum = 20.0;
     let critical_momentum = 40.0; 
