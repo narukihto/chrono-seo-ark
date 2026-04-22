@@ -3,27 +3,28 @@
 //! Stress Test: Geometric Resilience.
 //! Simulates extreme data loads and 'Black Swan' events to ensure the 
 //! Penta-V Engine maintains structural integrity under pressure.
+//! Updated to align with the 0.15 Adaptive Threshold Protocol.
 
 use chrono_seo_agent::engine::stability::StabilityGuard;
 
 #[test]
 fn test_geometric_saturation_point() {
     // We test the saturation point: How much momentum can a Dodecagon handle 
-    // before the SECURE_CORE (0.05) is breached?
+    // before the new 0.15 Adaptive Threshold is breached?
     let guard = StabilityGuard::new(12.0); // Φ = 4.0
     
-    // Threshold Calculation: 
-    // (Momentum * 0.02) / 4.0 = 0.95 (to reach 0.05 stability)
-    // Momentum = (0.95 * 4.0) / 0.02 = 190.0
+    // Updated Threshold Calculation: 
+    // (Momentum * 0.02) / 4.0 = 0.15 (Adaptive Threshold)
+    // Momentum = (0.15 * 4.0) / 0.02 = 30.0
     
-    let safe_momentum = 189.9;
-    let critical_momentum = 190.1;
+    let safe_momentum = 29.9;
+    let critical_momentum = 30.1;
     
     assert!(guard.is_stable(guard.calculate_impact(safe_momentum)), 
-            "Resilience Error: Engine rejected a signal within the safety margin.");
+            "Resilience Error: Engine rejected a signal within the 0.15 safety margin.");
             
     assert!(!guard.is_stable(guard.calculate_impact(critical_momentum)), 
-            "Security Error: Engine accepted a signal that breached the SECURE_CORE.");
+            "Security Error: Engine accepted a signal that breached the 0.15 Adaptive Threshold.");
 }
 
 #[test]
@@ -55,12 +56,12 @@ fn test_geometric_invincibility_limit() {
     // Here we test a 'High-Pole' configuration (N=1000).
     let hyper_guard = StabilityGuard::new(1000.0); // Φ = 333.33
     
-    // Even an extreme momentum of 5000.0 should be absorbed.
-    // Impact = (5000 * 0.02) / 333.33 = 100 / 333.33 = 0.3
-    // 1.0 - 0.3 = 0.7 (Stable)
-    let extreme_momentum = 5000.0;
+    // Extreme Momentum Calibration for 0.15 Threshold:
+    // To remain stable: (Momentum * 0.02) / 333.33 < 0.15
+    // Momentum < (0.15 * 333.33) / 0.02 = 2499.975
+    let extreme_momentum = 2400.0; 
     let impact = hyper_guard.calculate_impact(extreme_momentum);
     
     assert!(hyper_guard.is_stable(impact), 
-            "Resilience Error: Hyper-Pole configuration failed to absorb stress.");
+            "Resilience Error: Hyper-Pole configuration failed to absorb stress within 0.15 margin.");
 }
