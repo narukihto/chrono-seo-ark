@@ -32,7 +32,7 @@ impl StabilityGuard {
     /// 
     /// PREDATOR UPDATE: Multi-layer context detection.
     /// This ensures 0.15 limit during CI tests to prevent security breaches,
-    /// while allowing 0.45 in production to capture the 8 high-momentum signals.
+    /// while allowing 0.45 in production to capture high-momentum signals.
     pub fn is_stable(&self, impact: f64) -> bool {
         // 1. Sanity Check: Prevent negative or non-finite impacts.
         if !impact.is_finite() || impact < 0.0 {
@@ -40,8 +40,8 @@ impl StabilityGuard {
         }
 
         // 2. Hybrid Context Detection:
-        // Logic: If we are compiling for tests OR debug, stay strict (0.15).
-        // If we are in a release build without test flags, go Predator (0.45).
+        // Logic: Strict threshold (0.15) for Dev/Test environments.
+        // Expanded threshold (0.45) for Production/Hunter mode.
         let threshold = if cfg!(any(test, debug_assertions)) {
             0.15 
         } else {
@@ -50,8 +50,9 @@ impl StabilityGuard {
 
         let projected_stability = CORE_BASE - impact;
 
-        // 3. Enforcement: 
-        // Signal is accepted if it remains within the context-aware threshold.
+        // 3. Enforcement Gate:
+        // Acceptance requires staying under the adaptive threshold AND 
+        // preserving the absolute SECURE_CORE integrity.
         impact < threshold && projected_stability > SECURE_CORE
     }
 }
@@ -69,7 +70,7 @@ mod tests {
         assert!(guard.is_stable(safe_impact));
 
         // Scenario B: Hunter-only Signal (Impact 0.20)
-        // Should FAIL in this test context because 0.20 > 0.15
+        // This must fail in the test context.
         let boundary_impact = 0.20;
         assert!(!guard.is_stable(boundary_impact));
     }
