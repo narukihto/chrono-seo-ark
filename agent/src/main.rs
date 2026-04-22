@@ -2,7 +2,7 @@
 
 //! Chrono-SEO Agent: The Heart of Ark Systems.
 //! Orchestrates high-frequency SEO signal capture and geometric stabilization.
-//! Developed by The First Architect.
+//! Purge Protocol Active: Eliminating legacy Quantum noise to ensure Vault purity.
 
 use chrono_seo_agent::engine::stability::StabilityGuard;
 use chrono_seo_agent::protocols::cherenkov_lens::CherenkovLens;
@@ -17,7 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🛡️ [ARK] Initializing Chrono-SEO Pulse Agent...");
 
     // --- SECURE CONFIGURATION ---
-    // Extract API Key from environment. Now detects the ARK_API_KEY from GitHub Secrets.
+    // Extracting the sovereign API Key. Falls back to Simulation if environment is restricted.
     let api_key = env::var("ARK_API_KEY").unwrap_or_else(|_| {
         println!("⚠️ [ARK] WARNING: ARK_API_KEY not detected. Operating in Simulation Mode.");
         "SIM_PROTOTYPE".to_string()
@@ -28,6 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🏛️ [ARK] Penta-V Stability Guard Active. Poles: 12.0, Φ: {:.2}", guard.phi);
 
     // --- 2. PROTOCOL 15: CHERENKOV'S LENS ---
+    // Capturing high-frequency photons from the global data stream.
     let scan_result = CherenkovLens::scan(&api_key).await;
     
     let raw_signals = match scan_result {
@@ -41,29 +42,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    // --- 3. PROTOCOL 9: LIQUID SYNCHRONY (OPTIMIZED) ---
-    // We process signals through the guard, then ensure we diversify to capture the Top 5.
+    // --- 3. PROTOCOL 9: LIQUID SYNCHRONY & PURGE PROTOCOL ---
+    // Filtering signals and executing the hard-delete for legacy 'Quantum' noise.
     let mut processed_keywords = LiquidSync::process(&guard, raw_signals).await;
     
-    // UPDATED LOGIC: If the filter was too strict, we supplement with high-momentum raw signals
-    // to ensure the Vault always reflects the top 5 emerging photons.
+    // CRITICAL: Hard-purge any signal containing 'Quantum' to reset the Vault's focus.
+    processed_keywords.retain(|s| !s.keyword.to_lowercase().contains("quantum"));
+    
+    // Ensure we maintain at least the Top 5 unique signals if available.
     if processed_keywords.len() < 5 {
-        // Sort and diversify to fill the gap
-        processed_keywords.truncate(5); 
+        processed_keywords.sort_by(|a, b| b.momentum.partial_cmp(&a.momentum).unwrap_or(std::cmp::Ordering::Equal));
     }
     
+    // Limit projection to 8 high-integrity signals.
+    processed_keywords.truncate(8);
+
     if processed_keywords.is_empty() {
-        println!("🌑 [ARK] No stable signals detected in current pulse. System idling.");
+        println!("🌑 [ARK] No stable signals survived the Purge Protocol. System idling.");
     } else {
-        println!("💎 [ARK] Liquid Synchrony identified {} stable keywords.", processed_keywords.len());
+        println!("💎 [ARK] Liquid Synchrony identified {} clean stable keywords.", processed_keywords.len());
     }
 
     // --- 4. PROTOCOL 19: TEMPORAL PROJECTILE ---
-    // Deploying the Top 5 synchronized signals to the sovereign Truth-Vault.
+    // Final deployment of the purified dataset to the Truth-Vault.
     match TemporalProjectile::deploy(processed_keywords).await {
         Ok(_) => {
             let pulse_duration = start_pulse.elapsed();
-            println!("⚡ [ARK] Pulse Completed Successfully in {:?}. Truth-Vault synchronized.", pulse_duration);
+            println!("⚡ [ARK] Pulse Completed Successfully in {:?}. Vault is CLEAN.", pulse_duration);
         },
         Err(e) => {
             println!("❌ [ARK] Protocol 19 Deployment Failed: {}", e);
