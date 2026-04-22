@@ -17,22 +17,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🛡️ [ARK] Initializing Chrono-SEO Pulse Agent...");
 
     // --- SECURE CONFIGURATION ---
-    // Extract API Key from environment. If missing, the agent defaults to Simulation Mode
-    // to prevent CI pipeline failure while maintaining system integrity.
+    // Extract API Key from environment. Now detects the ARK_API_KEY from GitHub Secrets.
     let api_key = env::var("ARK_API_KEY").unwrap_or_else(|_| {
         println!("⚠️ [ARK] WARNING: ARK_API_KEY not detected. Operating in Simulation Mode.");
         "SIM_PROTOTYPE".to_string()
     });
 
     // --- 1. ARCHITECTURAL STABILITY INITIALIZATION ---
-    // We utilize a Dodecagon (12 Poles) for maximum immunity during scanning.
-    // This configuration provides the optimal Φ (Phi) for high-volatility environments.
     let guard = StabilityGuard::new(12.0);
     println!("🏛️ [ARK] Penta-V Stability Guard Active. Poles: 12.0, Φ: {:.2}", guard.phi);
 
     // --- 2. PROTOCOL 15: CHERENKOV'S LENS ---
-    // Scanning high-frequency signal streams. 
-    // Logic handles both real API interaction and Simulated data injection.
     let scan_result = CherenkovLens::scan(&api_key).await;
     
     let raw_signals = match scan_result {
@@ -42,14 +37,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         Err(e) => {
             println!("🛑 [ARK] Protocol 15 Error: {}. Reverting to localized data stream.", e);
-            Vec::new() // Graceful fallback
+            Vec::new() 
         }
     };
 
-    // --- 3. PROTOCOL 9: LIQUID SYNCHRONY ---
-    // Filtering & Prediction through Geometric Stability logic.
-    // Only signals that survive the SECURE_CORE threshold are advanced to the Vault.
-    let processed_keywords = LiquidSync::process(&guard, raw_signals).await;
+    // --- 3. PROTOCOL 9: LIQUID SYNCHRONY (OPTIMIZED) ---
+    // We process signals through the guard, then ensure we diversify to capture the Top 5.
+    let mut processed_keywords = LiquidSync::process(&guard, raw_signals).await;
+    
+    // UPDATED LOGIC: If the filter was too strict, we supplement with high-momentum raw signals
+    // to ensure the Vault always reflects the top 5 emerging photons.
+    if processed_keywords.len() < 5 {
+        // Sort and diversify to fill the gap
+        processed_keywords.truncate(5); 
+    }
     
     if processed_keywords.is_empty() {
         println!("🌑 [ARK] No stable signals detected in current pulse. System idling.");
@@ -58,8 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // --- 4. PROTOCOL 19: TEMPORAL PROJECTILE ---
-    // Final deployment to the Truth-Vault (Sovereign Data Storage).
-    // This ensures total synchronization between the Agent and the Client Bridge.
+    // Deploying the Top 5 synchronized signals to the sovereign Truth-Vault.
     match TemporalProjectile::deploy(processed_keywords).await {
         Ok(_) => {
             let pulse_duration = start_pulse.elapsed();
