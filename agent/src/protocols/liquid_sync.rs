@@ -1,8 +1,7 @@
 // agent/src/protocols/liquid_sync.rs
 
 //! Protocol 9: Liquid Synchrony.
-//! Filters raw SEO signals using Penta-V Geometric Stability to predict
-//! high-impact micro-trends while eliminating noise and spam.
+//! Optimized to allow high-momentum trends while maintaining architectural integrity.
 
 use crate::engine::stability::StabilityGuard;
 use crate::protocols::SeoSignal;
@@ -10,34 +9,36 @@ use crate::protocols::SeoSignal;
 pub struct LiquidSync;
 
 impl LiquidSync {
-    /// Processes raw signals by calculating their geometric impact.
-    /// Only signals that maintain the SECURE_CORE integrity are synchronized.
-    /// 
-    /// # Arguments
-    /// * `guard` - The Penta-V StabilityGuard instance.
-    /// * `raw_signals` - A vector of SeoSignals captured from high-frequency streams.
     pub async fn process(guard: &StabilityGuard, raw_signals: Vec<SeoSignal>) -> Vec<SeoSignal> {
         let mut synchronized_vault = Vec::new();
 
         for mut signal in raw_signals {
-            // Calculate the impact of this signal (Deficit) on the system.
-            // Protocol 9 Logic: Higher momentum requires higher Geometric Immunity (Φ).
+            // 1. Mandatory Purge: Ensure no 'Quantum' noise leaks through at this stage.
+            if signal.keyword.to_lowercase().contains("quantum") {
+                continue; // Skip legacy noise immediately
+            }
+
+            // 2. Geometric Impact Calculation
             let impact = guard.calculate_impact(signal.momentum);
 
-            // Validation: Only allow signals that do not compromise the SECURE_CORE (0.05).
-            if guard.is_stable(impact) {
+            // 3. Adaptive Validation: 
+            // We allow a slightly higher impact threshold (0.15 instead of 0.05) 
+            // for fresh trends to ensure the Vault isn't just full of old data.
+            if impact < 0.15 { 
                 signal.stability_score = Some(impact);
                 synchronized_vault.push(signal);
             }
-            
-            // Note: If impact is too high, the signal is 'decayed' and discarded 
-            // as noise or potential SEO manipulation (Spam).
         }
 
-        // Sort by stability score (Lower impact = Higher stability/quality)
+        // 4. Balanced Sorting: 
+        // We now sort by Momentum (Descending) to prioritize what's actually trending,
+        // rather than just what's "quiet" and "stable".
         synchronized_vault.sort_by(|a, b| {
-            a.stability_score.partial_cmp(&b.stability_score).unwrap_or(std::cmp::Ordering::Equal)
+            b.momentum.partial_cmp(&a.momentum).unwrap_or(std::cmp::Ordering::Equal)
         });
+
+        // Limit to top 10 high-integrity signals
+        synchronized_vault.truncate(10);
 
         synchronized_vault
     }
