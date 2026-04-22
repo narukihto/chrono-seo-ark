@@ -2,8 +2,7 @@
 
 //! Protocol 19: Temporal Projectile.
 //! Handles the instantaneous deployment of synchronized SEO signals to the Vault.
-//! This protocol ensures that the 'Past-Near' search intent is captured and stored
-//! in a version-controlled, lightweight JSON format.
+//! Enhanced with Purity-Validation to ensure zero legacy noise.
 
 use crate::protocols::SeoSignal;
 use std::error::Error;
@@ -17,43 +16,41 @@ pub struct TemporalProjectile;
 
 impl TemporalProjectile {
     /// Deploys the purified and processed signals into the Truth-Vault.
-    /// This is the final impact point of the Chrono-SEO Pulse.
-    /// 
-    /// # Arguments
-    /// * `signals` - The synchronized and purified SEO signals (Purge Protocol applied).
+    /// This version enforces a protocol-level version jump to track deployment success.
     pub async fn deploy(mut signals: Vec<SeoSignal>) -> Result<(), Box<dyn Error>> {
-        // Path to the sovereign data storage (Relative to agent execution point)
         let vault_dir = "../vault";
         let vault_file = "../vault/truth-vault.json";
 
-        // 1. Vault Resilience: Ensure the directory exists before attempting deployment.
+        // 1. Vault Resilience: Directory verification
         if !Path::new(vault_dir).exists() {
             fs::create_dir_all(vault_dir)?;
             println!("📁 [PROTOCOL 19] Vault directory initialized.");
         }
 
-        // 2. Momentum Calibration: 
-        // Re-sorting to ensure the absolute strongest signals lead the Truth-Vault.
+        // 2. Final Purity Check: Redundant filtering to eliminate any 'Quantum' leakage
+        // This ensures that even if main.rs misses it, the Vault remains clean.
+        signals.retain(|s| !s.keyword.to_lowercase().contains("quantum"));
+
+        // 3. Momentum Calibration: Sorting by strength
         signals.sort_by(|a, b| b.momentum.partial_cmp(&a.momentum).unwrap_or(std::cmp::Ordering::Equal));
 
-        // 3. Pulse Packet Assembly: Metadata injection for temporal tracking.
-        // Synchronized with the '1.0.0-ARK' specification for version integrity.
+        // 4. Pulse Packet Assembly (Version 1.1.0-PURIFIED)
+        // We increment the version to verify that the file on GitHub is actually updating.
         let pulse_packet = json!({
             "pulse_timestamp": Utc::now().to_rfc3339(),
-            "protocol_version": "1.0.0-ARK",
+            "protocol_version": "1.1.0-PURIFIED", 
             "signals_count": signals.len(),
             "data": signals 
         });
 
-        // 4. Serialization: Transform to pretty-printed JSON for auditability.
+        // 5. Serialization: Pretty-printed for clear audit logs
         let payload = serde_json::to_string_pretty(&pulse_packet)?;
 
-        // 5. Atomic Pulse Deployment: Instantaneous file creation and stream writing.
-        // Overwrites the previous pulse with the latest purified Truth.
+        // 6. Atomic Overwrite: Direct write to ensure the previous state is purged.
         let mut file = File::create(vault_file)?;
         file.write_all(payload.as_bytes())?;
 
-        println!("🚀 [PROTOCOL 19] Temporal Impact Complete. {} purified signals projected to Vault.", signals.len());
+        println!("⚡ [PROTOCOL 19] Temporal Impact Success: {} signals projected. Version: 1.1.0-PURIFIED", signals.len());
         
         Ok(())
     }
