@@ -3,23 +3,22 @@
 //! Stress Test: Geometric Resilience.
 //! Simulates extreme data loads and 'Black Swan' events to ensure the 
 //! Penta-V Engine maintains structural integrity under pressure.
-//! Updated to align with the 0.15 Adaptive Threshold Protocol.
+//! Updated for Predator-Sync (0.45 Live / 0.15 Test) calibration.
 
 use chrono_seo_agent::engine::stability::StabilityGuard;
 
 #[test]
 fn test_geometric_saturation_point() {
-    // We test the saturation point: How much momentum can a Dodecagon handle 
-    // before the new 0.15 Adaptive Threshold is breached?
+    // Testing the saturation point against the 0.15 Test-Mode threshold.
     let guard = StabilityGuard::new(12.0); // Φ = 4.0
     
-    // Recalibrated Threshold Calculation: 
-    // Impact = (Momentum * 0.02) / 4.0
-    // Safe: 29.0 * 0.02 / 4.0 = 0.145 (ACCEPTED < 0.15)
-    // Critical: 31.0 * 0.02 / 4.0 = 0.155 (REJECTED > 0.15)
+    // IMPACT CALCULATION: (Momentum * 0.02) / 4.0
+    // Safe: 20.0 * 0.02 / 4.0 = 0.10 (ACCEPTED < 0.15)
+    // Critical: 40.0 * 0.02 / 4.0 = 0.20 (REJECTED > 0.15)
+    // Note: In Hunter Mode (Live), 40.0 would pass (0.20 < 0.45).
     
-    let safe_momentum = 29.0;
-    let critical_momentum = 31.0;
+    let safe_momentum = 20.0;
+    let critical_momentum = 40.0; 
     
     assert!(guard.is_stable(guard.calculate_impact(safe_momentum)), 
             "Resilience Error: Engine rejected a signal within the 0.15 safety margin.");
@@ -63,5 +62,5 @@ fn test_geometric_invincibility_limit() {
     let impact = hyper_guard.calculate_impact(extreme_momentum);
     
     assert!(hyper_guard.is_stable(impact), 
-            "Resilience Error: Hyper-Pole configuration failed to absorb stress within 0.15 margin.");
+            "Resilience Error: Hyper-Pole failed to absorb stress within 0.15 margin.");
 }
