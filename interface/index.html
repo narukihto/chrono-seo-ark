@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARK-SYSTEMS | Sovereign Neural Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-overlay"></div>
+    
+    <div id="ark-container">
+        <header class="main-header">
+            <div class="logo-area">
+                <div class="ark-logo">🏛️</div>
+                <div class="title-wrap">
+                    <h1>THE FIRST ARCHITECT</h1>
+                    <span class="sub-title">Sovereign Neural Link v1.1.0-PURIFIED</span>
+                </div>
+            </div>
+            <div class="system-status">
+                <div class="status-indicator">
+                    <span class="blink-dot"></span>
+                    <span id="status-text">SYNCHRONIZING WITH VAULT...</span>
+                </div>
+                <div class="timestamp" id="last-pulse">LAST PULSE: --:--:--</div>
+            </div>
+        </header>
 
+        <section class="stats-grid">
+            <div class="stat-card" data-sector="news">
+                <span class="label">NEWS PHOTONS</span>
+                <span class="value" id="count-news">0</span>
+            </div>
+            <div class="stat-card" data-sector="market">
+                <span class="label">MARKET GAPS</span>
+                <span class="value" id="count-market">0</span>
+            </div>
+            <div class="stat-card" data-sector="total">
+                <span class="label">TOTAL AGGREGATE</span>
+                <span class="value" id="count-total">0</span>
+            </div>
+        </section>
+
+        <main class="pulse-core">
+            <div class="terminal-header">
+                <span class="term-title">LIVE_AUTONOMOUS_STREAM_MAP</span>
+                <div class="controls">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+            </div>
+            
+            <div id="ark-seo-pulse" class="pulse-display-grid">
+                <div class="initial-loader">Initializing Matrix Scan...</div>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <div class="footer-info">
+                <span>PROTOCOL 19: TEMPORAL PROJECTILE ACTIVE</span>
+                <span class="separator">|</span>
+                <span>LWE ENCRYPTION: ENABLED</span>
+            </div>
+            <div class="ark-brand">CHRONO-SEO ARK © 2026</div>
+        </footer>
+    </div>
+
+    <script src="../integration/client_bridge.js"></script>
+</body>
+</html>
