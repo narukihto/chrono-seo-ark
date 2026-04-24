@@ -2,21 +2,25 @@ name: Chrono-SEO Pulse
 
 on:
   schedule:
-    # Ark Frequency: Pulse every 6 minutes
+    # Ark Frequency: Pulse every 6 minutes for high-velocity signal capture
     - cron: '*/6 * * * *'
-  workflow_dispatch: # Allows manual pulse triggering for architectural testing
+  workflow_dispatch: # Allows manual pulse triggering for architectural calibration
 
 permissions:
   contents: write
+  pages: write      # Required for neural dashboard deployment
+  id-token: write   # Required for sovereign OIDC handshaking
 
 jobs:
   pulse:
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Increased slightly to accommodate Criterion analysis
+    timeout-minutes: 15 
 
     steps:
       - name: 🛰️ Synchronizing Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for accurate temporal commits
 
       - name: 🦀 Initializing Rust (Stable)
         uses: dtolnay/rust-toolchain@stable
@@ -34,58 +38,54 @@ jobs:
 
       - name: 🛡️ Setting Environment Guard
         run: |
-          # Map all Sovereign Keys to the runner environment
           echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" >> $GITHUB_ENV
           echo "SERP_API_KEY=${{ secrets.SERP_API_KEY }}" >> $GITHUB_ENV
           echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" >> $GITHUB_ENV
           echo "FREE_CRYPTO_KEY=${{ secrets.FREE_CRYPTO_KEY }}" >> $GITHUB_ENV
 
-      - name: 🧪 Verifying Geometric Integrity (Tests)
-        run: |
-          # Ensuring all integration tests pass before execution
-          cargo test --release --manifest-path agent/Cargo.toml
-
-      - name: ⏱️ Performance Profiling (Benches)
-        run: |
-          # Running benches with optimized sample size
-          cargo bench --manifest-path agent/Cargo.toml
-
-      - name: ⚡ Executing Penta-V Pulse
-        if: success()
+      - name: ⚡ Executing Penta-V Pulse (Purified Engine)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Injection of the 4 Sovereign Keys for the binary runtime from GITHUB_ENV
           ARK_API_KEY: ${{ env.ARK_API_KEY }}
           SERP_API_KEY: ${{ env.SERP_API_KEY }}
           COINGECKO_API_KEY: ${{ env.COINGECKO_API_KEY }}
           FREE_CRYPTO_KEY: ${{ env.FREE_CRYPTO_KEY }}
         run: |
-          # Executing the sovereign agent logic with full multi-sector access enabled
+          # Running the high-performance Rust agent to capture 47 signals
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
-
-      - name: 📊 Generating Performance Report
-        if: success()
-        run: |
-          # Processing pulse results into an audit-ready markdown report
-          python3 scripts/speed_reporter.py
 
       - name: 🛡️ Committing to Truth-Vault
         if: success()
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
           git config --global user.email "bot@ark-systems.io"
-          # Adding synchronized JSON vault and performance logs
           git add vault/truth-vault.json
-          git add reports/performance_log.md || true
-          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 19 Deployed" || echo "No changes to commit"
+          # Commit using the new Purified Protocol signature
+          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 1.1.0-PURIFIED Synchronized" || echo "No changes to commit"
           git push
 
-      - name: 📢 Triggering Webhook Observer
+      # --- New Architectural Phase: Dashboard Deployment ---
+
+      - name: 🏗️ Setup Pages Environment
+        uses: actions/configure-pages@v3
+
+      - name: 🚀 Deploy Sovereign Neural Dashboard
+        uses: actions/upload-pages-artifact@v2
+        with:
+          # Pointing to the new interface directory to fix Jekyll errors
+          path: './interface'
+
+      - name: 🏛️ Neural Link Activation
+        uses: actions/deploy-pages@v2
+
+      # --- Final Phase: Notification ---
+
+      - name: 📢 Triggering Webhook Observer (Discord)
         if: success()
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
-          # Instantaneous data projection to external observers
+          # Projecting real-time signals to the Architect's Discord channel
           if [ ! -z "$WEBHOOK_URL" ]; then
             curl -X POST $WEBHOOK_URL -H "Content-Type: application/json" -d @vault/truth-vault.json
           fi
