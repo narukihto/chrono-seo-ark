@@ -1,15 +1,20 @@
 // agent/src/protocols/gecko_provider.rs
 
 //! SECTOR: MARKET PULSE (COINGECKO)
-//! Ingesting real-time market sentiment, trending crypto assets, and Arbitrage gaps.
+//! Ingesting real-time market sentiment, trending crypto assets, and Arbitrage gaps
+//! to optimize the Penta-V stability engine.
 
 use crate::protocols::SeoSignal;
 use reqwest;
 use serde_json::Value;
-use std::error::Error;
 
 /// Captures top trending coins and detects high-impact Arbitrage opportunities.
-pub async fn fetch(client: &reqwest::Client, api_key: &str) -> Result<Vec<SeoSignal>, Box<dyn Error>> {
+/// Updated with Send + Sync bounds for high-frequency parallel execution.
+pub async fn fetch(
+    client: &reqwest::Client, 
+    api_key: &str
+) -> Result<Vec<SeoSignal>, Box<dyn std::error::Error + Send + Sync>> {
+    
     if api_key.is_empty() || api_key == "SIM_MODE" {
         return Ok(vec![]);
     }
@@ -18,11 +23,13 @@ pub async fn fetch(client: &reqwest::Client, api_key: &str) -> Result<Vec<SeoSig
 
     let url = "https://api.coingecko.com/api/v3/search/trending";
     let mut request = client.get(url);
+    
     if !api_key.is_empty() {
         request = request.header("x-cg-demo-api-key", api_key);
     }
 
     let response = request.send().await?;
+    
     if !response.status().is_success() {
         return Err(format!("CoinGecko Error: Status {}", response.status()).into());
     }
@@ -44,6 +51,7 @@ pub async fn fetch(client: &reqwest::Client, api_key: &str) -> Result<Vec<SeoSig
                 if let Some(price_btc) = item.get("price_btc").and_then(|v| v.as_f64()) {
                     if price_btc > 0.0000001 { // Refined threshold for broader asset capture
                         let arb_keyword = format!("{} Arbitrage Opportunity", symbol);
+                        // Arbitrage signals are high-impact photons (Momentum: 92.0)
                         signals.push(SeoSignal::new(arb_keyword, 92.0)); 
                     }
                 }
