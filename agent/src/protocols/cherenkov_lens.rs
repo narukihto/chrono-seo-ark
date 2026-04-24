@@ -1,4 +1,4 @@
-بالترتيب حدث ذا اول // agent/src/protocols/cherenkov_lens.rs
+ // agent/src/protocols/cherenkov_lens.rs
 
 //! Protocol 15: Cherenkov's Lens (Live Global Projection).
 //! High-frequency capture mechanism designed to detect emerging data 'glow'
