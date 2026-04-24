@@ -18,10 +18,13 @@ path = "src/main.rs"
 [dependencies]
 # Core async runtime and network stack
 tokio = { version = "1.35", features = ["full"] }
-# UPDATED: Added json and rustls-tls for secure, live API communication
+
+# Network: reqwest with native-tls/rustls-tls for secure multi-sector API calls.
+# Enabled 'json' for parsing NewsAPI, Coingecko, and Crypto-Pulse payloads.
 reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
 
 # Serialization and Data Architecture
+# Essential for Truth-Vault deployment and JSON signaling.
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
@@ -29,11 +32,13 @@ chrono = { version = "0.4", features = ["serde"] }
 # Configuration and Logic Utilities
 config = "0.13"
 toml = "0.8"
-# UPDATED: Explicitly enabling futures for parallel signal capture (join_all)
+
+# Parallel Execution: Explicitly enabling futures for 'join_all' and 'BoxFuture'.
+# Required for Protocol 15 (Cherenkov Lens) to unify different provider return types.
 futures = "0.3"
 
 [dev-dependencies]
-# Performance profiling suite
+# Performance profiling suite for Criterion-based analysis.
 criterion = { version = "0.5", features = ["async_tokio"] }
 
 # --- PATH CORRECTIONS FOR INTEGRATION TESTING ---
@@ -62,6 +67,7 @@ path = "../tests/latency_benchmarks.rs"
 
 [profile.release]
 # Maximum optimization profile for CI-based high-frequency execution.
+# Aligned with Ark Systems Protocol 19 for minimal binary size and peak throughput.
 opt-level = 3
 lto = true
 codegen-units = 1
