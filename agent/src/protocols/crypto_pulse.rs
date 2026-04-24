@@ -1,15 +1,21 @@
 // agent/src/protocols/crypto_pulse.rs
 
 //! SECTOR: REAL-TIME CRYPTO PULSE (FREECRYPTOAPI)
-//! Captures high-frequency volatility signals and immediate market entries.
+//! Captures high-frequency volatility signals and immediate market entries 
+//! to feed the Penta-V stability engine.
 
 use crate::protocols::SeoSignal;
 use reqwest;
 use serde_json::Value;
-use std::error::Error;
 
 /// Fetches instantaneous market signals from FreeCryptoAPI.
-pub async fn fetch(client: &reqwest::Client, api_key: &str) -> Result<Vec<SeoSignal>, Box<dyn Error>> {
+/// Updated with Send + Sync bounds for high-frequency parallel execution.
+pub async fn fetch(
+    client: &reqwest::Client, 
+    api_key: &str
+) -> Result<Vec<SeoSignal>, Box<dyn std::error::Error + Send + Sync>> {
+    
+    // Return empty set if in Simulation Mode or key is missing
     if api_key.is_empty() || api_key == "SIM_MODE" {
         return Ok(vec![]);
     }
