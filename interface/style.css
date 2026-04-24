@@ -1,1 +1,241 @@
+/* * ARK-SYSTEMS: Neural Dashboard Style 
+ * Version: 1.1.0-PURIFIED 
+ * Theme: Sovereign Dark / Matrix Neon 
+ */
 
+:root {
+    --ark-bg: #0a0a0c;
+    --ark-glass: rgba(20, 20, 25, 0.8);
+    --ark-neon: #00ffcc;
+    --ark-gold: #d4af37;
+    --ark-text: #e0e0e0;
+    --ark-dim: #888888;
+    --ark-red: #ff4d4d;
+    --ark-border: rgba(0, 255, 204, 0.1);
+    --font-mono: 'Fira Code', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--ark-bg);
+    color: var(--ark-text);
+    font-family: 'Noto Sans Arabic', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Background Overlay Effect */
+.glass-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 255, 204, 0.05) 0%, transparent 80%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+#ark-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header Architecture */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--ark-border);
+    margin-bottom: 3rem;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.ark-logo {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 0 10px var(--ark-neon));
+}
+
+.title-wrap h1 {
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: var(--ark-neon);
+    font-weight: 700;
+}
+
+.sub-title {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ark-dim);
+}
+
+/* Status Indicators */
+.system-status {
+    text-align: left;
+    font-family: var(--font-mono);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.blink-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--ark-neon);
+    border-radius: 50%;
+    animation: pulse-ring 1.5s infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.5; }
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--ark-glass);
+    padding: 1.5rem;
+    border: 1px solid var(--ark-border);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--ark-neon);
+}
+
+.stat-card .label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--ark-dim);
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .value {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    color: #fff;
+}
+
+/* Pulse Core Display */
+.pulse-core {
+    background: rgba(15, 15, 20, 0.9);
+    border: 1px solid var(--ark-border);
+    border-radius: 8px;
+    min-height: 500px;
+}
+
+.terminal-header {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.8rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--ark-border);
+}
+
+.term-title {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ark-neon);
+}
+
+.controls {
+    display: flex;
+    gap: 6px;
+}
+
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.red { background: #ff5f56; }
+.yellow { background: #ffbd2e; }
+.green { background: #27c93f; }
+
+/* Pulse Grid & Tags */
+.pulse-display-grid {
+    padding: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.ark-tag-wrapper {
+    transition: transform 0.2s ease;
+}
+
+.ark-tag {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 255, 204, 0.05);
+    border: 1px solid rgba(0, 255, 204, 0.2);
+    border-radius: 20px;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    cursor: default;
+    transition: all 0.3s ease;
+}
+
+.ark-tag-elite {
+    border-color: var(--ark-neon);
+    color: var(--ark-neon);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+    font-weight: 500;
+}
+
+.ark-tag:hover {
+    background: var(--ark-neon);
+    color: var(--ark-bg);
+    transform: translateY(-3px);
+}
+
+/* Footer Section */
+.main-footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--ark-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--ark-dim);
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+}
+
+.separator { margin: 0 1rem; color: #333; }
+
+/* Responsive Architecture */
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .main-header { flex-direction: column; text-align: center; gap: 1rem; }
+    .system-status { text-align: center; }
+}
