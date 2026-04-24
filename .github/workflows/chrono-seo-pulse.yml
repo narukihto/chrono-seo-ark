@@ -2,7 +2,7 @@ name: Chrono-SEO Pulse
 
 on:
   schedule:
-    # Ark Frequency: Every 6 minutes to align with high-velocity market data
+    # Ark Frequency: Every 6 minutes (High-Velocity Matrix Scan)
     - cron: '*/6 * * * *'
   workflow_dispatch: 
 
@@ -25,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0 
 
-      - name: 🦀 Initializing Rust (Stable/Penta-V Optimized)
+      - name: 🦀 Initializing Rust (Penta-V Optimized)
         uses: dtolnay/rust-toolchain@stable
 
       - name: ⚙️ Caching Binary Artifacts
@@ -46,14 +46,14 @@ jobs:
           echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" >> $GITHUB_ENV
           echo "FREE_CRYPTO_KEY=${{ secrets.FREE_CRYPTO_KEY }}" >> $GITHUB_ENV
 
-      - name: ⚡ Executing Penta-V Pulse (Purified Engine)
+      - name: ⚡ Executing Penta-V Pulse (Generating 47+ Photons)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Generate the 46+ elite signals in vault/truth-vault.json
+          # تشغيل المحرك لتوليد البيانات في vault/truth-vault.json
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
 
-      - name: 🛡️ Committing to Truth-Vault (Main Repo)
+      - name: 🛡️ Committing to Truth-Vault
         if: success()
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
@@ -62,18 +62,21 @@ jobs:
           git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 1.1.0-PURIFIED" || echo "No changes"
           git push
 
-      # --- Critical Phase: Neural Link Preparation ---
+      # --- مرحلة التجميع العصبي: ربط الـ 26 ملفاً ---
 
-      - name: 🛰️ Injecting Vault Data into Interface
+      - name: 🏗️ Consolidating Neural Components
         run: |
-          # Copying the fresh signals into the deployment directory
-          # This ensures dashboard.js can find the data at ./truth-vault.json
+          # 1. حقن الخزنة مباشرة في قلب الواجهة
           cp vault/truth-vault.json interface/truth-vault.json
+          
+          # 2. جلب الجسر البرمجي من مجلد التكامل إلى مجلد الواجهة
+          # هذا يضمن أن dashboard.js يجد كل التبعات في مكان واحد
+          cp integration/client_bridge.js interface/ || echo "Bridge already in place"
 
       - name: 🏗️ Setup Pages Infrastructure
         uses: actions/configure-pages@v4
 
-      - name: 🚀 Uploading Purified Interface (With Injected Vault)
+      - name: 🚀 Uploading Purified Interface (Full System Bundled)
         uses: actions/upload-pages-artifact@v3
         with:
           path: './interface'
