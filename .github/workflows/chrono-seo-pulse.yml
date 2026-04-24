@@ -18,40 +18,39 @@ jobs:
     steps:
       - name: 🛰️ Synchronizing Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 
 
       - name: 🦀 Initializing Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: ⚙️ Creating Temporary Vault Gate
+        run: mkdir -p vault # نجبر النظام على خلق المجلد ليتوافق مع مخرج المحرك (../vault)
 
       - name: ⚡ Executing Penta-V Pulse
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # تشغيل المحرك من مجلد agent
-          cargo run --release --manifest-path agent/Cargo.toml -- --debug
+          cd agent
+          cargo run --release -- --debug
+
+      - name: 🔍 Locating Truth-Vault (Debug Step)
+        run: |
+          echo "Searching for truth-vault.json..."
+          find . -name "truth-vault.json"
 
       - name: 🛡️ Committing Updated Data
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
           git config --global user.email "bot@ark-systems.io"
-          # إضافة الملف من مكانه الصحيح (تأكد من المسار الذي يخرج فيه الملف)
-          git add agent/truth-vault.json || git add truth-vault.json
+          # المحرك يضعه في ../vault بالنسبة لمجلد agent، أي في vault/ في الجذر
+          git add vault/truth-vault.json || git add truth-vault.json
           git commit -m "⚡ [PULSE] Protocol 1.1.0-PURIFIED" || echo "No changes"
           git push
 
-      # --- مرحلة الحقن الصحيحة (بدون مجلد vault مفقود) ---
-
       - name: 🏗️ Injecting Data to Interface
         run: |
-          # البحث عن ملف الحقيقة في المسارات المحتملة ونقله للواجهة
-          if [ -f "agent/truth-vault.json" ]; then
-            cp agent/truth-vault.json interface/truth-vault.json
-          elif [ -f "truth-vault.json" ]; then
-            cp truth-vault.json interface/truth-vault.json
-          fi
-          
-          # نقل الجسر من مجلد التكامل
+          # التأكد من وصول الملف للواجهة من أي مسار وجد فيه
+          find . -name "truth-vault.json" -exec cp {} interface/truth-vault.json \;
+          # جلب الجسر
           cp integration/client_bridge.js interface/ || echo "Bridge not found"
 
       - name: 🏗️ Setup Pages
