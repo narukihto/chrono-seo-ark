@@ -2,7 +2,6 @@ name: Chrono-SEO Pulse
 
 on:
   schedule:
-    # Ark Frequency: Every 6 minutes (High-Velocity Matrix Scan)
     - cron: '*/6 * * * *'
   workflow_dispatch: 
 
@@ -15,9 +14,6 @@ jobs:
   pulse:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: 🛰️ Synchronizing Repository
@@ -25,73 +21,47 @@ jobs:
         with:
           fetch-depth: 0 
 
-      - name: 🦀 Initializing Rust (Penta-V Optimized)
+      - name: 🦀 Initializing Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: ⚙️ Caching Binary Artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            agent/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: 🛡️ Setting Environment Guard
-        run: |
-          echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" >> $GITHUB_ENV
-          echo "SERP_API_KEY=${{ secrets.SERP_API_KEY }}" >> $GITHUB_ENV
-          echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" >> $GITHUB_ENV
-          echo "FREE_CRYPTO_KEY=${{ secrets.FREE_CRYPTO_KEY }}" >> $GITHUB_ENV
-
-      - name: ⚡ Executing Penta-V Pulse (Generating 47+ Photons)
+      - name: ⚡ Executing Penta-V Pulse
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # تشغيل المحرك لتوليد البيانات في vault/truth-vault.json
+          # تشغيل المحرك من مجلد agent
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
 
-      - name: 🛡️ Committing to Truth-Vault
-        if: success()
+      - name: 🛡️ Committing Updated Data
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
           git config --global user.email "bot@ark-systems.io"
-          git add vault/truth-vault.json
-          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 1.1.0-PURIFIED" || echo "No changes"
+          # إضافة الملف من مكانه الصحيح (تأكد من المسار الذي يخرج فيه الملف)
+          git add agent/truth-vault.json || git add truth-vault.json
+          git commit -m "⚡ [PULSE] Protocol 1.1.0-PURIFIED" || echo "No changes"
           git push
 
-      # --- مرحلة التجميع العصبي: ربط الـ 26 ملفاً ---
+      # --- مرحلة الحقن الصحيحة (بدون مجلد vault مفقود) ---
 
-      - name: 🏗️ Consolidating Neural Components
+      - name: 🏗️ Injecting Data to Interface
         run: |
-          # 1. حقن الخزنة مباشرة في قلب الواجهة
-          cp vault/truth-vault.json interface/truth-vault.json
+          # البحث عن ملف الحقيقة في المسارات المحتملة ونقله للواجهة
+          if [ -f "agent/truth-vault.json" ]; then
+            cp agent/truth-vault.json interface/truth-vault.json
+          elif [ -f "truth-vault.json" ]; then
+            cp truth-vault.json interface/truth-vault.json
+          fi
           
-          # 2. جلب الجسر البرمجي من مجلد التكامل إلى مجلد الواجهة
-          # هذا يضمن أن dashboard.js يجد كل التبعات في مكان واحد
-          cp integration/client_bridge.js interface/ || echo "Bridge already in place"
+          # نقل الجسر من مجلد التكامل
+          cp integration/client_bridge.js interface/ || echo "Bridge not found"
 
-      - name: 🏗️ Setup Pages Infrastructure
+      - name: 🏗️ Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: 🚀 Uploading Purified Interface (Full System Bundled)
+      - name: 🚀 Uploading Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './interface'
 
-      - name: 🏛️ Activating Neural Link (Deployment)
+      - name: 🏛️ Activation
         id: deployment
         uses: actions/deploy-pages@v4
-
-      # --- Final Notification Protocol ---
-
-      - name: 📢 Dispatching Elite Signals (Discord)
-        if: success()
-        env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-        run: |
-          if [ ! -z "$WEBHOOK_URL" ]; then
-            curl -X POST $WEBHOOK_URL -H "Content-Type: application/json" -d @vault/truth-vault.json
-          fi
