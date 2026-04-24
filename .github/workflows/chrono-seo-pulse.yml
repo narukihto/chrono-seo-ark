@@ -34,30 +34,33 @@ jobs:
 
       - name: 🛡️ Setting Environment Guard
         run: |
-          if [ -z "${{ secrets.ARK_API_KEY }}" ]; then
-            echo "ARK_API_KEY=ARK_SIMULATION_KEY_$(date +%s)" >> $GITHUB_ENV
-            echo "⚠️ [SYSTEM] API Key not found. Falling back to Simulation Mode."
-          else
-            echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" >> $GITHUB_ENV
-          fi
+          # Map all Sovereign Keys to the runner environment
+          echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" >> $GITHUB_ENV
+          echo "SERP_API_KEY=${{ secrets.SERP_API_KEY }}" >> $GITHUB_ENV
+          echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" >> $GITHUB_ENV
+          echo "FREE_CRYPTO_KEY=${{ secrets.FREE_CRYPTO_KEY }}" >> $GITHUB_ENV
 
       - name: 🧪 Verifying Geometric Integrity (Tests)
         run: |
-          # Ensuring all 14 integration tests pass before execution
+          # Ensuring all integration tests pass before execution
           cargo test --release --manifest-path agent/Cargo.toml
 
       - name: ⏱️ Performance Profiling (Benches)
         run: |
-          # Running benches with optimized sample size to prevent CI hang
+          # Running benches with optimized sample size
           cargo bench --manifest-path agent/Cargo.toml
 
       - name: ⚡ Executing Penta-V Pulse
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Injection of the 4 Sovereign Keys for the binary runtime from GITHUB_ENV
+          ARK_API_KEY: ${{ env.ARK_API_KEY }}
+          SERP_API_KEY: ${{ env.SERP_API_KEY }}
+          COINGECKO_API_KEY: ${{ env.COINGECKO_API_KEY }}
+          FREE_CRYPTO_KEY: ${{ env.FREE_CRYPTO_KEY }}
         run: |
-          # Executing the sovereign agent logic via the Agent Crate with debug mode enabled
-          # This will reveal the 8 raw SEO signals in the logs before encryption
+          # Executing the sovereign agent logic with full multi-sector access enabled
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
 
       - name: 📊 Generating Performance Report
