@@ -7,10 +7,14 @@
 use crate::protocols::SeoSignal;
 use reqwest;
 use serde_json::Value;
-use std::error::Error;
 
 /// Fetches trending news topics related to high-volatility sectors.
-pub async fn fetch(client: &reqwest::Client, api_key: &str) -> Result<Vec<SeoSignal>, Box<dyn Error>> {
+/// Updated with Send + Sync bounds to maintain parallel momentum in Protocol 15.
+pub async fn fetch(
+    client: &reqwest::Client, 
+    api_key: &str
+) -> Result<Vec<SeoSignal>, Box<dyn std::error::Error + Send + Sync>> {
+    
     // Return empty set if in Simulation Mode or key is missing
     if api_key.is_empty() || api_key == "SIM_MODE" {
         return Ok(vec![]);
