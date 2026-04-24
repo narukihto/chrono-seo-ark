@@ -22,14 +22,16 @@ async fn test_protocol_15_multi_sector_connectivity() {
     let (signals, report) = CherenkovLens::multi_scan(&mock_keys).await;
 
     // 3. Telemetry Verification
-    // System must at least return the Ark-Foundation emergency fallback signal.
+    // System must at least return the Ark-Foundation emergency fallback signal in SIM_MODE.
     assert!(!signals.is_empty(), "Sector Failure: Multi-scan returned a void stream.");
     
-    // Validate report object initialization
-    assert!(report.news_count >= 0);
-    assert!(report.trends_count >= 0);
-    assert!(report.gecko_count >= 0);
-    assert!(report.crypto_count >= 0);
+    // 4. Validate report object initialization (FIXED: Avoided useless >= 0 comparisons)
+    // We check for logical consistency: if signals exist, the report should reflect activity.
+    let total_reported: usize = report.news_count + report.trends_count + report.gecko_count + report.crypto_count;
+    
+    // In SIM_MODE, providers return empty vectors, but the fallback ensures at least 1 signal.
+    // We assert that the report struct is reachable and correctly mapped.
+    assert!(total_reported <= signals.len(), "Telemetry Error: Reported counts exceed captured signals.");
 }
 
 #[tokio::test]
@@ -51,7 +53,7 @@ async fn test_liquid_sync_prediction_accuracy() {
     // 4. Integrity Verification.
     assert!(!filtered_signals.is_empty(), "Integrity Failure: System discarded all signals.");
     
-    // Enforce the Purge Protocol.
+    // Enforce the Purge Protocol (Purifying legacy noise).
     for signal in &filtered_signals {
         assert!(!signal.keyword.to_lowercase().contains("quantum"), 
             "Purification Breach: Legacy 'Quantum' noise leaked into the vault.");
@@ -62,13 +64,16 @@ async fn test_liquid_sync_prediction_accuracy() {
 async fn test_protocol_9_sorting_logic() {
     let guard = StabilityGuard::new(12.0);
     let raw_signals = vec![
-        SeoSignal::new("Alpha".to_string(), 30.0), 
-        SeoSignal::new("Beta".to_string(), 15.0),
+        SeoSignal::new("Alpha".to_string(), 15.0), 
+        SeoSignal::new("Beta".to_string(), 30.0),
     ];
     let filtered = LiquidSync::process(&guard, raw_signals).await;
     
+    // Verification: Sorting must ensure the highest momentum (Beta: 30.0) is at index 0.
     if filtered.len() >= 2 {
-        assert!(filtered[0].momentum > filtered[1].momentum, "Sorting Logic Failure: Highest momentum must lead.");
+        assert!(filtered[0].momentum > filtered[1].momentum, 
+            "Sorting Logic Failure: Highest momentum (Alpha-Sector priority) must lead.");
+        assert_eq!(filtered[0].keyword, "Beta", "Sorting Logic Failure: Keyword mismatch at priority 0.");
     }
 }
 
@@ -78,7 +83,7 @@ async fn test_geometric_immunity_transition() {
     let strong_guard = StabilityGuard::new(12.0); // Dodecagon (Φ = 4.0)
     
     // Pulse calibrated for strict transition validation:
-    // Momentum 25.0 calculation:
+    // Impact Calculation Check:
     // Weak Impact = (25 * 0.02) / 1.0 = 0.5 (REJECTED > 0.15)
     // Strong Impact = (25 * 0.02) / 4.0 = 0.125 (ACCEPTED < 0.15)
     let signal = vec![SeoSignal::new("Adaptive Pulse".to_string(), 25.0)];
