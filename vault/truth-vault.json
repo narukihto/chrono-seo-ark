@@ -1,17 +1,12 @@
 {
   "data": [
     {
-      "keyword": "Unique-Post-Quantum-Signal-Alpha",
-      "momentum": 95.0,
-      "stability_score": null
-    },
-    {
-      "keyword": "Unique-BTC-Arbitrage-Signal-Beta",
-      "momentum": 92.0,
-      "stability_score": null
+      "keyword": "Ark-Foundation Stability Pulse",
+      "momentum": 1.0,
+      "stability_score": 0.005
     }
   ],
   "protocol_version": "1.1.0-PURIFIED",
-  "pulse_timestamp": "2026-04-24T09:44:31.692631012+00:00",
-  "signals_count": 2
+  "pulse_timestamp": "2026-04-24T11:59:31.120622595+00:00",
+  "signals_count": 1
 }
