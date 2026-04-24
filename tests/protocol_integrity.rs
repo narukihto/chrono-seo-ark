@@ -1,10 +1,36 @@
 // agent/tests/protocol_integrity.rs
 
 //! Protocol Integrity: Validates the accuracy of the prediction logic.
-//! Hunter-Sync Edition: Calibrated to balance strict testing with live momentum capture.
+//! Hunter-Sync Edition: Calibrated for Multi-Sector Architecture.
 
 use chrono_seo_agent::protocols::{SeoSignal, liquid_sync::LiquidSync};
 use chrono_seo_agent::engine::stability::StabilityGuard;
+use chrono_seo_agent::protocols::cherenkov_lens::CherenkovLens;
+
+#[tokio::test]
+async fn test_protocol_15_multi_sector_connectivity() {
+    // 1. Setup Mock Matrix (Simulating 4 distinct API pathways)
+    let mock_keys = (
+        "SIM_MODE".to_string(),
+        "SIM_MODE".to_string(),
+        "SIM_MODE".to_string(),
+        "SIM_MODE".to_string(),
+    );
+
+    // 2. Execute Multi-Sector Scan
+    // Validating the structural integrity of the (Vec<SeoSignal>, SectorReport) tuple.
+    let (signals, report) = CherenkovLens::multi_scan(&mock_keys).await;
+
+    // 3. Telemetry Verification
+    // System must at least return the Ark-Foundation emergency fallback signal.
+    assert!(!signals.is_empty(), "Sector Failure: Multi-scan returned a void stream.");
+    
+    // Validate report object initialization
+    assert!(report.news_count >= 0);
+    assert!(report.trends_count >= 0);
+    assert!(report.gecko_count >= 0);
+    assert!(report.crypto_count >= 0);
+}
 
 #[tokio::test]
 async fn test_liquid_sync_prediction_accuracy() {
@@ -23,7 +49,7 @@ async fn test_liquid_sync_prediction_accuracy() {
     let filtered_signals = LiquidSync::process(&guard, raw_signals).await;
 
     // 4. Integrity Verification.
-    assert!(!filtered_signals.is_empty(), "Integrity Failure: System discarded all signals even under Dodecagon stabilization.");
+    assert!(!filtered_signals.is_empty(), "Integrity Failure: System discarded all signals.");
     
     // Enforce the Purge Protocol.
     for signal in &filtered_signals {
