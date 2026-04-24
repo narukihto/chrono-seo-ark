@@ -13,58 +13,61 @@ use std::path::Path;
 
 #[tokio::test]
 async fn test_vault_schema_integrity() {
-    // 1. Pre-test Sanitization: Ensure the vault is clean before starting
+    // 1. Pre-test Sanitization: 
+    // ضمان بدء الاختبار بصفحة بيضاء لمنع ظهور خطأ (left: 1 / right: 2) الناتج عن بقايا ملفات سابقة.
     let vault_path = "../vault/truth-vault.json";
     if Path::new(vault_path).exists() {
         let _ = fs::remove_file(vault_path); 
     }
 
-    // 2. Setup: Create a controlled signal set.
+    // 2. Setup: Create a controlled signal set with unique identifiers.
     let signals = vec![
-        SeoSignal::new("Post-Quantum Cryptography".to_string(), 95.0),
-        SeoSignal::new("BTC Arbitrage Opportunity".to_string(), 92.0),
+        SeoSignal::new("Unique-Post-Quantum-Signal-Alpha".to_string(), 95.0),
+        SeoSignal::new("Unique-BTC-Arbitrage-Signal-Beta".to_string(), 92.0),
     ];
     let expected_count = signals.len();
 
-    // 3. Execution: Deploy via Protocol 19.
+    // 3. Execution: Deploy via Protocol 19 (The Temporal Projectile).
     let deployment_result = TemporalProjectile::deploy(signals).await;
-    assert!(deployment_result.is_ok(), "Protocol 19 deployment failed.");
+    assert!(deployment_result.is_ok(), "Protocol 19 deployment failed during consistency test.");
 
     // 4. Validation: Read and verify.
     let vault_content = fs::read_to_string(vault_path)
-        .expect("Consistency Error: Truth-Vault file not found.");
+        .expect("Consistency Error: Truth-Vault file not found after deployment.");
 
     let v: Value = serde_json::from_str(vault_content.trim())
-        .expect("Consistency Error: Invalid JSON structure.");
+        .expect("Consistency Error: Vault contains invalid JSON structure.");
 
     // 5. Schema Assertions (Version 1.1.0-PURIFIED)
+    // التأكد من الحقول الإجبارية لنظام الآرك.
     assert_eq!(v["protocol_version"], "1.1.0-PURIFIED");
+    assert!(v.get("pulse_timestamp").is_some(), "Field missing: pulse_timestamp");
     
-    // FETCHING AND COMPARING: Using dynamic extraction
+    // FETCHING AND COMPARING: استخراج العدد الفعلي ومطابقته ديناميكياً
     let actual_count = v["signals_count"].as_u64().unwrap_or(0) as usize;
     
-    // If the CI still fails here, we force a pass by validating the logic, not just the hardcoded number
-    assert!(actual_count > 0, "Vault should not be empty");
-    assert_eq!(actual_count, expected_count, "Signals count mismatch in Vault metadata.");
+    // التحقق من صحة البيانات المرسلة والمحفوظة
+    assert!(actual_count > 0, "Security Breach: Vault is empty after deployment.");
+    assert_eq!(actual_count, expected_count, "Integrity Error: Signals count mismatch in Vault metadata.");
 
-    let data_array = v["data"].as_array().expect("Data field is not an array");
-    assert_eq!(data_array.len(), expected_count);
+    let data_array = v["data"].as_array().expect("Data field is not a JSON array.");
+    assert_eq!(data_array.len(), expected_count, "Data array length does not match metadata signals_count.");
 }
 
 #[test]
 fn test_vault_atomic_overwrite_integrity() {
-    // Using an isolated path for atomic verification
+    
     let path = "../vault/truth-vault-atomic-test.json";
     
     if let Some(parent) = Path::new(path).parent() {
         fs::create_dir_all(parent).unwrap();
     }
     
-    // 1. Scenario: Simulate legacy corruption
+    // 1. Scenario: Simulate legacy or corrupted large file.
     let legacy_junk = "{\"old_junk\": \"".to_owned() + &"X".repeat(5000) + "\"}"; 
     fs::write(path, legacy_junk).unwrap();
 
-    // 2. Define target structure
+    // 2. Define target structure (Protocol 19 Mock)
     let expected_json = json!({
         "pulse_timestamp": "2026-04-21T00:00:00Z",
         "protocol_version": "1.1.0-PURIFIED",
@@ -72,25 +75,27 @@ fn test_vault_atomic_overwrite_integrity() {
         "data": []
     });
 
-    // 3. Execution: Truncate and write
+    // 3. Execution: Truncate-and-Write atomic simulation.
     {
         let mut file = fs::OpenOptions::new()
             .write(true)
             .create(true)
             .truncate(true) 
             .open(path)
-            .expect("Failed to open test vault");
+            .expect("Failed to open test vault for atomic verification.");
 
         let payload = serde_json::to_string_pretty(&expected_json).unwrap();
-        file.write_all(payload.as_bytes()).expect("Write failure");
-        file.sync_all().expect("Sync failure");
+        file.write_all(payload.as_bytes()).expect("Write operation failed.");
+        file.sync_all().expect("File system sync (fsync) failed.");
     }
 
-    // 4. Final Validation
-    let final_content = fs::read_to_string(path).expect("Read failure");
-    let final_json: Value = serde_json::from_str(final_content.trim()).unwrap();
+    // 4. Final Validation: Ensure no trailing junk remains.
+    let final_content = fs::read_to_string(path).expect("Failed to read back the vault.");
+    let final_json: Value = serde_json::from_str(final_content.trim())
+        .expect("Consistency Error: Trailing artifacts or null-bytes detected.");
     
-    assert_eq!(final_json, expected_json, "Atomic overwrite failure.");
+    assert_eq!(final_json, expected_json, "Atomic overwrite failure: Data corruption detected.");
 
+    // Cleanup: Securely remove the temporary test file.
     let _ = fs::remove_file(path);
 }
