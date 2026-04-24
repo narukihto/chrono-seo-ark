@@ -2,7 +2,7 @@ name: Chrono-SEO Pulse
 
 on:
   schedule:
-    # High-Velocity Pulse: Every 6 minutes
+    # Ark Frequency: Every 6 minutes to align with high-velocity market data
     - cron: '*/6 * * * *'
   workflow_dispatch: 
 
@@ -25,11 +25,11 @@ jobs:
         with:
           fetch-depth: 0 
 
-      - name: 🦀 Initializing Rust (Stable/Penta-V)
+      - name: 🦀 Initializing Rust (Stable/Penta-V Optimized)
         uses: dtolnay/rust-toolchain@stable
 
       - name: ⚙️ Caching Binary Artifacts
-        uses: actions/cache@v4 # Upgraded to v4 to fix compatibility
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -50,33 +50,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Running the high-performance agent to refresh truth-vault.json
+          # Generate the 46+ elite signals in vault/truth-vault.json
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
 
-      - name: 🛡️ Committing to Truth-Vault
+      - name: 🛡️ Committing to Truth-Vault (Main Repo)
         if: success()
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
           git config --global user.email "bot@ark-systems.io"
           git add vault/truth-vault.json
-          git add reports/performance_log.md || true
           git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 1.1.0-PURIFIED" || echo "No changes"
           git push
 
-      # --- Neural Dashboard Deployment Phase (Upgraded for 2026 Standards) ---
+      # --- Critical Phase: Neural Link Preparation ---
+
+      - name: 🛰️ Injecting Vault Data into Interface
+        run: |
+          # Copying the fresh signals into the deployment directory
+          # This ensures dashboard.js can find the data at ./truth-vault.json
+          cp vault/truth-vault.json interface/truth-vault.json
 
       - name: 🏗️ Setup Pages Infrastructure
-        uses: actions/configure-pages@v4 # Upgraded to v4 to fix deprecation
+        uses: actions/configure-pages@v4
 
-      - name: 🚀 Uploading Purified Interface
-        uses: actions/upload-pages-artifact@v3 # Upgraded to v3 to resolve artifact errors
+      - name: 🚀 Uploading Purified Interface (With Injected Vault)
+        uses: actions/upload-pages-artifact@v3
         with:
-          # Pointing directly to the interface folder containing index.html
           path: './interface'
 
       - name: 🏛️ Activating Neural Link (Deployment)
         id: deployment
-        uses: actions/deploy-pages@v4 # Upgraded to v4 for final deployment
+        uses: actions/deploy-pages@v4
 
       # --- Final Notification Protocol ---
 
