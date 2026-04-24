@@ -9,7 +9,7 @@ use reqwest;
 use serde_json::Value;
 
 /// Fetches trending news topics related to high-volatility sectors.
-/// Updated with Send + Sync bounds to maintain parallel momentum in Protocol 15.
+/// Updated with UTF-8 safe slicing to prevent char-boundary panics.
 pub async fn fetch(
     client: &reqwest::Client, 
     api_key: &str
@@ -42,9 +42,14 @@ pub async fn fetch(
     if let Some(articles) = json["articles"].as_array() {
         for article in articles {
             if let Some(title) = article["title"].as_str() {
-                // Formatting title to fit SEO keyword constraints
-                let clean_title = if title.len() > 65 {
-                    format!("{}...", &title[..62])
+                
+                // --- ARCHITECT FIX: UTF-8 Safe Slicing ---
+                // We use .chars() to ensure we count characters, not bytes.
+                // This prevents 'not a char boundary' panics on international headlines.
+                let char_count = title.chars().count();
+                let clean_title = if char_count > 65 {
+                    let truncated: String = title.chars().take(62).collect();
+                    format!("{}...", truncated)
                 } else {
                     title.to_string()
                 };
