@@ -2,27 +2,30 @@ name: Chrono-SEO Pulse
 
 on:
   schedule:
-    # Ark Frequency: Pulse every 6 minutes for high-velocity signal capture
+    # High-Velocity Pulse: Every 6 minutes to align with market volatility
     - cron: '*/6 * * * *'
-  workflow_dispatch: # Allows manual pulse triggering for architectural calibration
+  workflow_dispatch: # Manual override for testing architectural stability
 
 permissions:
   contents: write
-  pages: write      # Required for neural dashboard deployment
-  id-token: write   # Required for sovereign OIDC handshaking
+  pages: write      # Essential for the Neural Dashboard deployment
+  id-token: write   # Required for secure OIDC handshaking with GitHub Pages
 
 jobs:
   pulse:
     runs-on: ubuntu-latest
-    timeout-minutes: 15 
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: 🛰️ Synchronizing Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Full history for accurate temporal commits
+          fetch-depth: 0 # Full history retention for temporal consistency
 
-      - name: 🦀 Initializing Rust (Stable)
+      - name: 🦀 Initializing Rust (Stable/Penta-V Optimized)
         uses: dtolnay/rust-toolchain@stable
 
       - name: ⚙️ Caching Binary Artifacts
@@ -38,6 +41,7 @@ jobs:
 
       - name: 🛡️ Setting Environment Guard
         run: |
+          # Injecting Sovereign Keys into the pulse environment
           echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" >> $GITHUB_ENV
           echo "SERP_API_KEY=${{ secrets.SERP_API_KEY }}" >> $GITHUB_ENV
           echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" >> $GITHUB_ENV
@@ -51,41 +55,55 @@ jobs:
           COINGECKO_API_KEY: ${{ env.COINGECKO_API_KEY }}
           FREE_CRYPTO_KEY: ${{ env.FREE_CRYPTO_KEY }}
         run: |
-          # Running the high-performance Rust agent to capture 47 signals
+          # Firing the Rust agent to capture 47 signals across all sectors
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
+
+      - name: 📊 Processing Pulse Intelligence
+        if: success()
+        run: |
+          # Transforming raw data into audit-ready telemetry
+          if [ -f scripts/speed_reporter.py ]; then
+            python3 scripts/speed_reporter.py
+          fi
 
       - name: 🛡️ Committing to Truth-Vault
         if: success()
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
           git config --global user.email "bot@ark-systems.io"
+          
+          # Adding core vault and performance audit logs
           git add vault/truth-vault.json
-          # Commit using the new Purified Protocol signature
-          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 1.1.0-PURIFIED Synchronized" || echo "No changes to commit"
+          git add reports/performance_log.md || true
+          
+          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 1.1.0-PURIFIED Synchronized" || echo "No state changes detected"
           git push
 
-      # --- New Architectural Phase: Dashboard Deployment ---
+      # --- Neural Dashboard Deployment Phase ---
 
-      - name: 🏗️ Setup Pages Environment
+      - name: 🏗️ Setup Pages Infrastructure
         uses: actions/configure-pages@v3
 
-      - name: 🚀 Deploy Sovereign Neural Dashboard
+      - name: 🚀 Uploading Neural Dashboard Artifacts
         uses: actions/upload-pages-artifact@v2
         with:
-          # Pointing to the new interface directory to fix Jekyll errors
+          # Pointing to 'interface' bypasses Jekyll and deploys the purified UI directly
           path: './interface'
 
-      - name: 🏛️ Neural Link Activation
+      - name: 🏛️ Activating Neural Link (Deployment)
+        id: deployment
         uses: actions/deploy-pages@v2
 
-      # --- Final Phase: Notification ---
+      # --- Final Notification Protocol ---
 
-      - name: 📢 Triggering Webhook Observer (Discord)
+      - name: 📢 Dispatching Elite Signals (Observer Notification)
         if: success()
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
-          # Projecting real-time signals to the Architect's Discord channel
+          # Instantaneous data projection to the Architect's Discord Command Center
           if [ ! -z "$WEBHOOK_URL" ]; then
-            curl -X POST $WEBHOOK_URL -H "Content-Type: application/json" -d @vault/truth-vault.json
+            curl -X POST $WEBHOOK_URL \
+              -H "Content-Type: application/json" \
+              -d @vault/truth-vault.json
           fi
