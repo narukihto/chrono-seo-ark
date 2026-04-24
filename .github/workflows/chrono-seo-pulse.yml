@@ -2,14 +2,14 @@ name: Chrono-SEO Pulse
 
 on:
   schedule:
-    # Ark Frequency: High-velocity pulse every 6 minutes
+    # High-Velocity Pulse: Every 6 minutes
     - cron: '*/6 * * * *'
-  workflow_dispatch: # Sovereign override for manual synchronization
+  workflow_dispatch: 
 
 permissions:
   contents: write
-  pages: write      # Essential for Neural Dashboard deployment
-  id-token: write   # Required for secure OIDC handshaking
+  pages: write      
+  id-token: write   
 
 jobs:
   pulse:
@@ -29,7 +29,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: ⚙️ Caching Binary Artifacts
-        uses: actions/cache@v4 # Upgraded to v4 for compatibility
+        uses: actions/cache@v4 # Upgraded to v4 to fix compatibility
         with:
           path: |
             ~/.cargo/bin/
@@ -50,15 +50,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Firing the Rust agent to capture 47 elite signals
+          # Running the high-performance agent to refresh truth-vault.json
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
-
-      - name: 📊 Processing Pulse Intelligence
-        if: success()
-        run: |
-          if [ -f scripts/speed_reporter.py ]; then
-            python3 scripts/speed_reporter.py
-          fi
 
       - name: 🛡️ Committing to Truth-Vault
         if: success()
@@ -70,20 +63,20 @@ jobs:
           git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 1.1.0-PURIFIED" || echo "No changes"
           git push
 
-      # --- Neural Dashboard Deployment Phase (Upgraded for v1.1.0) ---
+      # --- Neural Dashboard Deployment Phase (Upgraded for 2026 Standards) ---
 
       - name: 🏗️ Setup Pages Infrastructure
-        uses: actions/configure-pages@v4 # Upgraded to v4
+        uses: actions/configure-pages@v4 # Upgraded to v4 to fix deprecation
 
       - name: 🚀 Uploading Purified Interface
-        uses: actions/upload-pages-artifact@v3 # Upgraded to v3 to resolve deprecation
+        uses: actions/upload-pages-artifact@v3 # Upgraded to v3 to resolve artifact errors
         with:
-          # Directly deploying the interface directory to bypass Jekyll errors
+          # Pointing directly to the interface folder containing index.html
           path: './interface'
 
       - name: 🏛️ Activating Neural Link (Deployment)
         id: deployment
-        uses: actions/deploy-pages@v4 # Upgraded to v4
+        uses: actions/deploy-pages@v4 # Upgraded to v4 for final deployment
 
       # --- Final Notification Protocol ---
 
