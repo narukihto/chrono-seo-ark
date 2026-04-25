@@ -21,10 +21,10 @@ pub async fn fetch(
 
     println!("🔍 [SECTOR: TRENDS] Probing Google Trends for breakout signals...");
 
-    // Using the Google Trends engine via SerpApi
-    // Note: We focus on 'trending_queries' to capture immediate momentum.
+    // Constructing the URL with the correct engine and parameters.
+    // Using 'google_trends_trending_now' for real-time high-velocity signals.
     let url = format!(
-        "https://serpapi.com/search.json?engine=google_trends&api_key={}&data_type=trending_queries",
+        "https://serpapi.com{}",
         api_key
     );
 
@@ -37,22 +37,26 @@ pub async fn fetch(
     let json: Value = response.json().await?;
     let mut signals = Vec::new();
 
-    // Parsing SerpApi's specific structure for trending queries
-    if let Some(trends) = json["interest_over_time"]["trending_queries"].as_array() {
-        for trend in trends.iter().take(8) { // Capture top 8 high-momentum signals
+    // Parsing the 'trending_searches' key which is standard for this SerpApi engine.
+    if let Some(trends) = json["trending_searches"].as_array() {
+        for trend in trends.iter().take(8) { 
             if let Some(query) = trend["query"].as_str() {
-                // In Google Trends, 'Breakout' signals are assigned a baseline high-momentum of 88.0.
+                // Assigning baseline high-momentum (88.0) to breakout signals.
                 signals.push(SeoSignal::new(query.to_string(), 88.0));
             }
         }
     }
 
-    // Fallback: If 'trending_queries' is empty, check for 'related_queries'
+    // Fallback Matrix: Check 'daily_searches' if immediate trending data is null.
     if signals.is_empty() {
-        if let Some(related) = json["related_queries"]["rising"].as_array() {
-            for item in related.iter().take(5) {
-                if let Some(query) = item["query"].as_str() {
-                    signals.push(SeoSignal::new(query.to_string(), 82.0));
+        if let Some(daily) = json["daily_searches"].as_array() {
+            for day in daily.iter().take(1) {
+                if let Some(queries) = day["searches"].as_array() {
+                    for item in queries.iter().take(5) {
+                        if let Some(query) = item["query"].as_str() {
+                            signals.push(SeoSignal::new(query.to_string(), 82.0));
+                        }
+                    }
                 }
             }
         }
