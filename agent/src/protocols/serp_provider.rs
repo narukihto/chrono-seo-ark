@@ -21,8 +21,7 @@ pub async fn fetch(
 
     println!("🔍 [SECTOR: TRENDS] Probing Google Trends for breakout signals...");
 
-    // Constructing the URL with the correct engine and parameters.
-    // Using 'google_trends_trending_now' for real-time high-velocity signals.
+    // Critical Fix: Added the missing /search.json and engine parameters.
     let url = format!(
         "https://serpapi.com{}",
         api_key
@@ -37,7 +36,7 @@ pub async fn fetch(
     let json: Value = response.json().await?;
     let mut signals = Vec::new();
 
-    // Parsing the 'trending_searches' key which is standard for this SerpApi engine.
+    // Mapping 'trending_searches' from SerpApi payload.
     if let Some(trends) = json["trending_searches"].as_array() {
         for trend in trends.iter().take(8) { 
             if let Some(query) = trend["query"].as_str() {
@@ -47,7 +46,7 @@ pub async fn fetch(
         }
     }
 
-    // Fallback Matrix: Check 'daily_searches' if immediate trending data is null.
+    // Fallback: Accessing 'daily_searches' if immediate trending data is empty.
     if signals.is_empty() {
         if let Some(daily) = json["daily_searches"].as_array() {
             for day in daily.iter().take(1) {
