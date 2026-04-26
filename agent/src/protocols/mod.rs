@@ -38,18 +38,19 @@ impl SeoSignal {
         }
     }
 
-    /// Integration: Gemini AI Capture & Professional HTML Deployment
+    /// Integration: Gemini AI Capture & Professional HTML Deployment.
+    /// This bridge converts raw signals into high-authority technical articles.
     pub fn deploy_to_gemini(&self) {
         let api_key = std::env::var("GEMINI_API_KEY").expect("GEMINI_API_KEY env var not set");
         let client = Client::new();
 
-        let url = format!("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={}", api_key);
+        // Optimized for Gemini 1.5 Flash for faster pulse response
+        let url = format!("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={}", api_key);
         
-        // تحسين الـ Prompt لإنتاج محتوى احترافي مهيكل
         let prompt = format!(
-            "Write a high-authority, professional SEO article for the keyword: '{}'. \
-            Include an engaging introduction, structured body paragraphs with insights, and a strategic conclusion. \
-            Output the content in plain text with clear paragraphs.", 
+            "Act as a DeepTech Lead Architect. Write a high-authority, professional SEO report for: '{}'. \
+            Focus on technical implications, strategic market impact, and future outlook. \
+            Output in plain text with clear paragraph breaks. No markdown, no bolding.", 
             self.keyword
         );
 
@@ -62,43 +63,44 @@ impl SeoSignal {
             .json::<serde_json::Value>()
             .expect("Failed to parse Gemini response");
 
-        // استخراج النص وتأمينه
+        // Safely extract the content or fallback to recalibration message
         let raw_ai_content = response["candidates"][0]["content"]["parts"][0]["text"]
             .as_str()
             .unwrap_or("System is recalibrating content stream. Please wait for the next pulse.");
 
-        // تحويل النص إلى HTML محترم (تحويل الفقرات)
+        // Semantic HTML Formatting: Wrap paragraphs in <p> tags for the Truth-Vault index
         let formatted_content = raw_ai_content
             .split('\n')
-            .filter(|line| !line.trim().is_empty())
-            .map(|line| format!("<p>{}</p>", line))
+            .filter(|line| line.trim().len() > 5) // Ignore fragments or empty lines
+            .map(|line| format!("<p>{}</p>", line.trim()))
             .collect::<Vec<String>>()
             .join("\n");
 
-        // --- إدارة المسارات والرفع ---
+        // Path Strategy: Ensuring alignment between local dev and CI/CD environments
         let template_path = "agent/template.html";
         let output_path = "agent/index.html";
 
-        match fs::read_to_string(template_path) {
+        // Deployment Logic with fallback capability
+        let final_processed_html = match fs::read_to_string(template_path) {
             Ok(template) => {
-                let processed_html = template
+                template
                     .replace("{{WORD}}", &self.keyword)
-                    .replace("{{CONTENT}}", &formatted_content);
-
-                fs::write(output_path, processed_html).expect("Failed to write index.html");
-                println!("🚀 [PULSE] High-Impact SEO Index deployed at: {}", output_path);
+                    .replace("{{CONTENT}}", &formatted_content)
             },
             Err(_) => {
-                if let Ok(template) = fs::read_to_string("template.html") {
-                    let processed_html = template
-                        .replace("{{WORD}}", &self.keyword)
-                        .replace("{{CONTENT}}", &formatted_content);
-                    fs::write("index.html", processed_html).expect("Failed to write locally");
-                    println!("🚀 [LOCAL] SEO Index updated in current directory.");
-                } else {
-                    println!("❌ [CRITICAL] Architectural Template Missing.");
-                }
+                // Fallback to current directory template if agent/ prefix fails
+                let local_template = fs::read_to_string("template.html")
+                    .expect("❌ [CRITICAL] Architectural Template Missing in all paths.");
+                local_template
+                    .replace("{{WORD}}", &self.keyword)
+                    .replace("{{CONTENT}}", &formatted_content)
             }
-        }
+        };
+
+        // Final Persistence: Overwriting the index for current pulse visibility
+        fs::write(output_path, &final_processed_html).or_else(|_| fs::write("index.html", &final_processed_html))
+            .expect("Failed to write SEO Index");
+
+        println!("🚀 [PULSE] High-Impact SEO Index deployed for signal: [{}]", self.keyword);
     }
 }
