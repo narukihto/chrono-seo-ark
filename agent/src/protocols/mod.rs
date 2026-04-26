@@ -46,7 +46,6 @@ impl SeoSignal {
 
     /// Integration: Gemini AI Capture & HTML Deployment
     /// This function triggers the Gemini API call and updates the local index.html template.
-    /// Aligned with Ark Protocol 19 for deployment purity.
     pub fn deploy_to_gemini(&self) {
         let api_key = std::env::var("GEMINI_API_KEY").expect("GEMINI_API_KEY env var not set");
         let client = Client::new();
@@ -72,20 +71,32 @@ impl SeoSignal {
             .as_str()
             .unwrap_or("Engine failed to retrieve content.");
 
-        // Template Bridge: Read template.html and replace placeholders.
-        // Paths are relative to the 'agent' directory execution context.
-        match fs::read_to_string("template.html") {
+        // --- تصحيح المسار الذكي لدعم GitHub Actions والتشغيل المحلي ---
+        
+        // نحاول أولاً المسار المتوقع في الـ Action (Root path)
+        let template_path = "agent/template.html";
+        let output_path = "agent/index.html";
+
+        match fs::read_to_string(template_path) {
             Ok(template) => {
                 let processed_html = template
                     .replace("{{WORD}}", &self.keyword)
                     .replace("{{CONTENT}}", ai_content);
 
-                // Export to index.html in the current agent directory.
-                fs::write("index.html", processed_html).expect("Failed to write deployment index.html");
-                println!("✅ [DEPLOY] SEO Index generated successfully for: {}", self.keyword);
+                fs::write(output_path, processed_html).expect("Failed to write index.html");
+                println!("✅ [DEPLOY] SEO Index generated at: {}", output_path);
             },
             Err(_) => {
-                println!("⚠️ [WARN] template.html not found in agent root. Skipping HTML deployment.");
+                // إذا فشل (ربما تعمل محلياً داخل مجلد agent)، نجرب المسار المباشر
+                if let Ok(template) = fs::read_to_string("template.html") {
+                    let processed_html = template
+                        .replace("{{WORD}}", &self.keyword)
+                        .replace("{{CONTENT}}", ai_content);
+                    fs::write("index.html", processed_html).expect("Failed to write index.html");
+                    println!("✅ [DEPLOY] SEO Index generated locally in current dir.");
+                } else {
+                    println!("❌ [ERROR] template.html not found in 'agent/' or current directory.");
+                }
             }
         }
     }
