@@ -20,8 +20,8 @@ path = "src/main.rs"
 tokio = { version = "1.35", features = ["full"] }
 
 # Network: reqwest with native-tls/rustls-tls for secure multi-sector API calls.
-# Enabled 'json' for parsing NewsAPI, Coingecko, and Crypto-Pulse payloads.
-reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+# Enabled 'json' and 'blocking' for Gemini API and data providers.
+reqwest = { version = "0.11", features = ["json", "rustls-tls", "blocking"] }
 
 # Serialization and Data Architecture
 # Essential for Truth-Vault deployment and JSON signaling.
