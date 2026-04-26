@@ -2,14 +2,13 @@ name: Chrono-SEO Pulse
 
 on:
   schedule:
-    # Ark Frequency: Pulse every 6 minutes
     - cron: '*/6 * * * *'
-  workflow_dispatch: # Allows manual pulse triggering for architectural testing
+  workflow_dispatch:
 
 permissions:
   contents: write
-  pages: write      # تفعيل صلاحية النشر
-  id-token: write   # تأمين الهوية للنشر
+  pages: write
+  id-token: write
 
 jobs:
   pulse:
@@ -45,10 +44,6 @@ jobs:
       - name: ⚡ Executing Penta-V Pulse
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARK_API_KEY: ${{ env.ARK_API_KEY }}
-          SERP_API_KEY: ${{ env.SERP_API_KEY }}
-          COINGECKO_API_KEY: ${{ env.COINGECKO_API_KEY }}
-          FREE_CRYPTO_KEY: ${{ env.FREE_CRYPTO_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
@@ -68,15 +63,21 @@ jobs:
           git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 19 Deployed" || echo "No changes"
           git push
 
-      # --- بروتوكول النشر العلني (Deploy to GitHub Pages) ---
+      # --- بروتوكول التصفية والنشر المحدث ---
+      - name: 🚀 Preparing Sovereign SEO Artifact
+        if: success()
+        run: |
+          mkdir -p deploy_dir
+          cp agent/index.html deploy_dir/
+          touch deploy_dir/.nojekyll
+
       - name: 🚀 Deploying Sovereign SEO Page
         if: success()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./agent
-          publish_files: index.html
-          force_orphan: true # يجعل التاريخ نظيفاً ويركز على أحدث نبضة فقط
+          publish_dir: ./deploy_dir  # نشر المجلد النظيف الذي يحتوي على المحتوى المكتوب فقط
+          force_orphan: true
 
       - name: 📢 Triggering Webhook Observer
         if: success()
