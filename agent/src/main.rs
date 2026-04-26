@@ -17,6 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🛡️ [ARK] Initializing Chrono-SEO Pulse Agent...");
 
     // --- SECURE CONFIGURATION MATRIX ---
+    // Fetching environmental keys for multi-sector intelligence gathering.
     let keys = (
         env::var("ARK_API_KEY").unwrap_or_else(|_| "SIM_MODE".to_string()),
         env::var("SERP_API_KEY").unwrap_or_else(|_| "SIM_MODE".to_string()),
@@ -28,22 +29,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let debug_mode = args.contains(&"--debug".to_string());
 
     // --- 1. ARCHITECTURAL STABILITY INITIALIZATION ---
+    // Activating the Penta-V Stability Guard to filter market volatility.
     let guard = StabilityGuard::new(12.0);
     println!("🏛️ [ARK] Penta-V Stability Guard Active. Poles: 12.0, Φ: {:.2}", guard.phi);
 
     // --- 2. PROTOCOL 15: MULTI-SECTOR CHERENKOV SCAN ---
+    // High-frequency scanning across News, Trends, and Crypto sectors.
     let (raw_signals, report) = CherenkovLens::multi_scan(&keys).await;
 
     println!("📡 [ARK] Sector Scan Complete:");
-    println!("   |-- News Sector  : {} signals", report.news_count);
-    println!("   |-- Trends Sector: {} signals", report.trends_count);
-    println!("   |-- Market Sector: {} signals", report.gecko_count);
-    println!("   |-- Crypto Sector: {} signals", report.crypto_count);
+    println!("    |-- News Sector   : {} signals", report.news_count);
+    println!("    |-- Trends Sector: {} signals", report.trends_count);
+    println!("    |-- Market Sector: {} signals", report.gecko_count);
+    println!("    |-- Crypto Sector: {} signals", report.crypto_count);
     println!("🛰️ [ARK] Total Aggregate Signals: {}", raw_signals.len());
 
     // --- 3. PROTOCOL 9: LIQUID SYNCHRONY & PURGE PROTOCOL ---
+    // Filtering noise and aligning keywords by momentum coefficients.
     let mut processed_keywords = LiquidSync::process(&guard, raw_signals).await;
     
+    // Purge logic: Removing deprecated 'quantum' noise artifacts.
     processed_keywords.retain(|s| !s.keyword.to_lowercase().contains("quantum"));
     
     if processed_keywords.len() > 1 {
@@ -55,11 +60,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         println!("💎 [ARK] Liquid Synchrony identified {} clean stable keywords.", processed_keywords.len());
         
-        // --- GEMINI AI DEPLOYMENT BRIDGE ---
-        // Capture the primary momentum signal and project it through Gemini API
-        // This occurs BEFORE Protocol 19 encryption to ensure plaintext capture.
+        // --- PROTOCOL 19 BRIDGE: GEMINI AI DEPLOYMENT ---
+        // Crucial: Execute Gemini projection for the top-tier signal.
+        // This ensures the Template-to-Index injection occurs before final vault commit.
         if let Some(primary_signal) = processed_keywords.first() {
             println!("🚀 [ARK] Projecting Primary Signal to Gemini: [{}]", primary_signal.keyword);
+            
+            // Triggering the deployment method defined in protocols/mod.rs
             primary_signal.deploy_to_gemini();
         }
 
@@ -72,6 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // --- 4. PROTOCOL 19: TEMPORAL PROJECTILE ---
+    // Atomic synchronization of the purified signal matrix into the Truth-Vault.
     match TemporalProjectile::deploy(processed_keywords).await {
         Ok(_) => {
             let pulse_duration = start_pulse.elapsed();
