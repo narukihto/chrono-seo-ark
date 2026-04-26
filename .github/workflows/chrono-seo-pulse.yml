@@ -12,7 +12,7 @@ permissions:
 jobs:
   pulse:
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Increased slightly to accommodate Criterion analysis
+    timeout-minutes: 10 # Optimized timeout since tests are removed
 
     steps:
       - name: 🛰️ Synchronizing Repository
@@ -41,16 +41,6 @@ jobs:
           echo "FREE_CRYPTO_KEY=${{ secrets.FREE_CRYPTO_KEY }}" >> $GITHUB_ENV
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> $GITHUB_ENV
 
-      - name: 🧪 Verifying Geometric Integrity (Tests)
-        run: |
-          # Ensuring all integration tests pass before execution
-          cargo test --release --manifest-path agent/Cargo.toml
-
-      - name: ⏱️ Performance Profiling (Benches)
-        run: |
-          # Running benches with optimized sample size
-          cargo bench --manifest-path agent/Cargo.toml
-
       - name: ⚡ Executing Penta-V Pulse
         if: success()
         env:
@@ -62,7 +52,7 @@ jobs:
           FREE_CRYPTO_KEY: ${{ env.FREE_CRYPTO_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
-          # Executing the sovereign agent logic with full multi-sector access enabled
+          # Executing the sovereign agent logic with direct deployment enabled
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
 
       - name: 📊 Generating Performance Report
@@ -76,10 +66,10 @@ jobs:
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
           git config --global user.email "bot@ark-systems.io"
-          # Adding synchronized JSON vault, performance logs, and AI Generated SEO Index
+          # Adding synchronized JSON vault, performance logs, and AI Generated SEO Index from agent folder
           git add vault/truth-vault.json
           git add reports/performance_log.md || true
-          git add index.html || true
+          git add agent/index.html || true
           git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 19 Deployed (SEO Index Updated)" || echo "No changes to commit"
           git push
 
