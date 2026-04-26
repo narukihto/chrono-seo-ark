@@ -8,11 +8,13 @@ on:
 
 permissions:
   contents: write
+  pages: write      # تفعيل صلاحية النشر
+  id-token: write   # تأمين الهوية للنشر
 
 jobs:
   pulse:
     runs-on: ubuntu-latest
-    timeout-minutes: 10 # Optimized timeout since tests are removed
+    timeout-minutes: 10
 
     steps:
       - name: 🛰️ Synchronizing Repository
@@ -34,7 +36,6 @@ jobs:
 
       - name: 🛡️ Setting Environment Guard
         run: |
-          # Map all Sovereign Keys to the runner environment
           echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" >> $GITHUB_ENV
           echo "SERP_API_KEY=${{ secrets.SERP_API_KEY }}" >> $GITHUB_ENV
           echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" >> $GITHUB_ENV
@@ -42,43 +43,46 @@ jobs:
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> $GITHUB_ENV
 
       - name: ⚡ Executing Penta-V Pulse
-        if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Injection of the 5 Sovereign Keys for the binary runtime from GITHUB_ENV
           ARK_API_KEY: ${{ env.ARK_API_KEY }}
           SERP_API_KEY: ${{ env.SERP_API_KEY }}
           COINGECKO_API_KEY: ${{ env.COINGECKO_API_KEY }}
           FREE_CRYPTO_KEY: ${{ env.FREE_CRYPTO_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
-          # Executing the sovereign agent logic with direct deployment enabled
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
 
       - name: 📊 Generating Performance Report
         if: success()
-        run: |
-          # Processing pulse results into an audit-ready markdown report
-          python3 scripts/speed_reporter.py
+        run: python3 scripts/speed_reporter.py
 
       - name: 🛡️ Committing to Truth-Vault
         if: success()
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
           git config --global user.email "bot@ark-systems.io"
-          # Adding synchronized JSON vault, performance logs, and AI Generated SEO Index from agent folder
           git add vault/truth-vault.json
           git add reports/performance_log.md || true
           git add agent/index.html || true
-          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 19 Deployed (SEO Index Updated)" || echo "No changes to commit"
+          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 19 Deployed" || echo "No changes"
           git push
+
+      # --- بروتوكول النشر العلني (Deploy to GitHub Pages) ---
+      - name: 🚀 Deploying Sovereign SEO Page
+        if: success()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./agent
+          publish_files: index.html
+          force_orphan: true # يجعل التاريخ نظيفاً ويركز على أحدث نبضة فقط
 
       - name: 📢 Triggering Webhook Observer
         if: success()
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
-          # Instantaneous data projection to external observers
           if [ ! -z "$WEBHOOK_URL" ]; then
             curl -X POST $WEBHOOK_URL -H "Content-Type: application/json" -d @vault/truth-vault.json
           fi
