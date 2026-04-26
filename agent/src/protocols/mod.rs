@@ -12,13 +12,14 @@ pub mod cherenkov_lens;
 pub mod temporal_projectile;
 
 // --- SECTOR PROVIDER MODULES (MULTI-SCAN ARCHITECTURE) ---
-// These must be explicitly declared for the compiler to resolve imports in cherenkov_lens.rs
 pub mod serp_provider;
 pub mod gecko_provider;
 pub mod crypto_pulse;
 pub mod news_provider;
 
 use serde::{Serialize, Deserialize};
+use std::fs;
+use reqwest::blocking::Client;
 
 /// The fundamental SEO signal structure used across all Ark protocols.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -40,6 +41,40 @@ impl SeoSignal {
             keyword,
             momentum,
             stability_score: None,
+        }
+    }
+
+    /// Integration: Gemini AI Capture & HTML Deployment
+    /// This function triggers the Gemini API call and updates the local index.html template.
+    pub fn deploy_to_gemini(&self) {
+        let api_key = std::env::var("GEMINI_API_KEY").expect("GEMINI_API_KEY env var not set");
+        let client = Client::new();
+
+        // Gemini API Request Construction
+        let url = format!("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={}", api_key);
+        
+        let prompt = format!("Generate a professional SEO content overview for the keyword: '{}'. Focus on high-momentum market trends.", self.keyword);
+
+        let response = client.post(url)
+            .json(&serde_json::json!({
+                "contents": [{ "parts": [{ "text": prompt }] }]
+            }))
+            .send()
+            .expect("Failed to connect to Gemini API")
+            .json::<serde_json::Value>()
+            .expect("Failed to parse Gemini response");
+
+        let ai_content = response["candidates"][0]["content"]["parts"][0]["text"]
+            .as_str()
+            .unwrap_or("Engine failed to retrieve content.");
+
+        // Template Bridge: Read template.html and replace placeholders
+        if let Ok(template) = fs::read_to_string("template.html") {
+            let processed_html = template
+                .replace("{{WORD}}", &self.keyword)
+                .replace("{{CONTENT}}", ai_content);
+
+            fs::write("index.html", processed_html).expect("Failed to write deployment index.html");
         }
     }
 }
