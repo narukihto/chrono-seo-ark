@@ -66,19 +66,31 @@ impl SeoSignal {
         // Safely extract the content or fallback to recalibration message.
         let raw_ai_content = response["candidates"][0]["content"]["parts"][0]["text"]
             .as_str()
-            .unwrap_or("System is recalibrating content stream. Please wait for the next pulse.");
+            .unwrap_or("");
+
+        // Debug: Print raw content length to GitHub Actions logs
+        println!("🚀 [DEBUG] Gemini Response Length: {} characters", raw_ai_content.len());
 
         // --- CONTENT PURIFICATION PROTOCOL ---
         // Force-remove markdown artifacts (stars, hashes) to maintain HTML integrity.
         let purified_text = raw_ai_content.replace("*", "").replace("#", "");
 
         // Semantic HTML Formatting: Transform plain text blocks into valid paragraph tags.
+        // MODIFICATION: Removed the > 20 char filter to prevent content loss.
         let formatted_content = purified_text
             .split('\n')
-            .filter(|line| line.trim().len() > 20) // Filter out noise and fragments.
-            .map(|line| format!("<p>{}</p>", line.trim()))
+            .map(|line| line.trim())
+            .filter(|line| !line.is_empty()) // Only filter truly empty lines.
+            .map(|line| format!("<p>{}</p>", line))
             .collect::<Vec<String>>()
             .join("\n");
+
+        // Final content check: if Gemini is empty, show recalibration message.
+        let final_vault_content = if formatted_content.is_empty() {
+            "<p>System is recalibrating content stream. Please wait for the next pulse.</p>".to_string()
+        } else {
+            formatted_content
+        };
 
         // Path Strategy: Ensuring alignment between local dev and GitHub Actions CI/CD.
         let template_path = "agent/template.html";
@@ -89,7 +101,7 @@ impl SeoSignal {
             Ok(template) => {
                 template
                     .replace("{{WORD}}", &self.keyword)
-                    .replace("{{CONTENT}}", &formatted_content)
+                    .replace("{{CONTENT}}", &final_vault_content)
             },
             Err(_) => {
                 // Fallback mechanism for different execution contexts.
@@ -97,7 +109,7 @@ impl SeoSignal {
                     .expect("❌ [CRITICAL] Architectural Template Missing in all paths.");
                 local_template
                     .replace("{{WORD}}", &self.keyword)
-                    .replace("{{CONTENT}}", &formatted_content)
+                    .replace("{{CONTENT}}", &final_vault_content)
             }
         };
 
