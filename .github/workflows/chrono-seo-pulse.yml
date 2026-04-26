@@ -39,6 +39,7 @@ jobs:
           echo "SERP_API_KEY=${{ secrets.SERP_API_KEY }}" >> $GITHUB_ENV
           echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" >> $GITHUB_ENV
           echo "FREE_CRYPTO_KEY=${{ secrets.FREE_CRYPTO_KEY }}" >> $GITHUB_ENV
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> $GITHUB_ENV
 
       - name: 🧪 Verifying Geometric Integrity (Tests)
         run: |
@@ -54,11 +55,12 @@ jobs:
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Injection of the 4 Sovereign Keys for the binary runtime from GITHUB_ENV
+          # Injection of the 5 Sovereign Keys for the binary runtime from GITHUB_ENV
           ARK_API_KEY: ${{ env.ARK_API_KEY }}
           SERP_API_KEY: ${{ env.SERP_API_KEY }}
           COINGECKO_API_KEY: ${{ env.COINGECKO_API_KEY }}
           FREE_CRYPTO_KEY: ${{ env.FREE_CRYPTO_KEY }}
+          GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
           # Executing the sovereign agent logic with full multi-sector access enabled
           cargo run --release --manifest-path agent/Cargo.toml -- --debug
@@ -74,10 +76,11 @@ jobs:
         run: |
           git config --global user.name "Ark Systems (Pulse-Bot)"
           git config --global user.email "bot@ark-systems.io"
-          # Adding synchronized JSON vault and performance logs
+          # Adding synchronized JSON vault, performance logs, and AI Generated SEO Index
           git add vault/truth-vault.json
           git add reports/performance_log.md || true
-          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 19 Deployed" || echo "No changes to commit"
+          git add index.html || true
+          git commit -m "⚡ [PULSE] $(date -u +'%Y-%m-%dT%H:%M:%SZ') | Protocol 19 Deployed (SEO Index Updated)" || echo "No changes to commit"
           git push
 
       - name: 📢 Triggering Webhook Observer
