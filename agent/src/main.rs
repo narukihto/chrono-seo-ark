@@ -17,7 +17,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🛡️ [ARK] Initializing Chrono-SEO Pulse Agent...");
 
     // --- SECURE CONFIGURATION MATRIX ---
-    // Initialize sovereign API matrix. System monitors 4 distinct global sectors.
     let keys = (
         env::var("ARK_API_KEY").unwrap_or_else(|_| "SIM_MODE".to_string()),
         env::var("SERP_API_KEY").unwrap_or_else(|_| "SIM_MODE".to_string()),
@@ -25,7 +24,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         env::var("FREE_CRYPTO_KEY").unwrap_or_else(|_| "SIM_MODE".to_string()),
     );
 
-    // Detect runtime flags. Enable extended logging if --debug is present.
     let args: Vec<String> = env::args().collect();
     let debug_mode = args.contains(&"--debug".to_string());
 
@@ -34,11 +32,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🏛️ [ARK] Penta-V Stability Guard Active. Poles: 12.0, Φ: {:.2}", guard.phi);
 
     // --- 2. PROTOCOL 15: MULTI-SECTOR CHERENKOV SCAN ---
-    // Execute parallel high-frequency scan across News, Trends, Market, and Crypto sectors.
-    // The multi_scan protocol returns a tuple containing (Total_Signals, Sector_Report).
     let (raw_signals, report) = CherenkovLens::multi_scan(&keys).await;
 
-    // Displaying Sector-Specific Telemetry
     println!("📡 [ARK] Sector Scan Complete:");
     println!("   |-- News Sector  : {} signals", report.news_count);
     println!("   |-- Trends Sector: {} signals", report.trends_count);
@@ -49,10 +44,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // --- 3. PROTOCOL 9: LIQUID SYNCHRONY & PURGE PROTOCOL ---
     let mut processed_keywords = LiquidSync::process(&guard, raw_signals).await;
     
-    // Purge Protocol: Eliminate legacy signals to maintain architectural focus.
     processed_keywords.retain(|s| !s.keyword.to_lowercase().contains("quantum"));
     
-    // Sort signals by Momentum to prioritize high-impact data points.
     if processed_keywords.len() > 1 {
         processed_keywords.sort_by(|a, b| b.momentum.partial_cmp(&a.momentum).unwrap_or(std::cmp::Ordering::Equal));
     }
@@ -62,10 +55,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         println!("💎 [ARK] Liquid Synchrony identified {} clean stable keywords.", processed_keywords.len());
         
+        // --- GEMINI AI DEPLOYMENT BRIDGE ---
+        // Capture the primary momentum signal and project it through Gemini API
+        // This occurs BEFORE Protocol 19 encryption to ensure plaintext capture.
+        if let Some(primary_signal) = processed_keywords.first() {
+            println!("🚀 [ARK] Projecting Primary Signal to Gemini: [{}]", primary_signal.keyword);
+            primary_signal.deploy_to_gemini();
+        }
+
         if debug_mode {
             println!("🔍 [DEBUG] Full Purified Signals Map (Autonomous Stream):");
             for (index, signal) in processed_keywords.iter().enumerate() {
-                println!("    |-- Signal {:02}: [{}] (Momentum: {:.4})", index + 1, signal.keyword, signal.momentum);
+                println!("     |-- Signal {:02}: [{}] (Momentum: {:.4})", index + 1, signal.keyword, signal.momentum);
             }
         }
     }
