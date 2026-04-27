@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ark Systems | SEO Pulse Engine</title>
+    <style>
+        :root {
+            --primary: #00ffcc; 
+            --bg: #0a0b10;
+            --surface: #11141a;
+            --text: #e6edf3;
+            --dim: #8b949e;
+            --accent: #0088ff;
+            --border: rgba(0, 255, 204, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 2px 2px, rgba(0, 255, 204, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--surface);
+            padding: 60px;
+            border-radius: 16px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Top Scanning Line */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: scan 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        header {
+            border-bottom: 1px solid rgba(139, 148, 158, 0.15);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .system-status {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--primary);
+            letter-spacing: 4px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            color: #fff;
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+
+        .keyword-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 255, 204, 0.08);
+            color: var(--primary);
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            border: 1px solid var(--border);
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        .content {
+            line-height: 1.85;
+            font-size: 1.2rem;
+            color: #cbd5e0;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* تحسين شكل الفقرات القادمة من الكود */
+        .content p {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .content p:first-of-type {
+            font-size: 1.35rem;
+            color: #fff;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(139, 148, 158, 0.15);
+            font-size: 13px;
+            color: var(--dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .signature {
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .verify-code {
+            font-family: monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .glow-effect {
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 30px; }
+            h1 { font-size: 2.2rem; }
+            .content { font-size: 1.1rem; }
+            footer { flex-direction: column; gap: 15px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="system-status">
+                <span class="pulse-dot"></span>
+                Ark Protocol 19 | Live Intelligence Deployment
+            </div>
+            <h1 class="glow-effect">SEO Intelligence Report</h1>
+            <div class="keyword-badge">SIG_TARGET // BIS warns crypto exchanges acting as “shadow banks,” raising s...</div>
+        </header>
+
+        <main class="content">
+            <p>System is recalibrating content stream. Please wait for the next pulse.</p>
+        </main>
+
+        <footer>
+            <div>Lead Architect // <span class="signature">Isaac Andrew</span></div>
+            <div class="verify-code">VERIF: 0xARK-PQC-LWE-2026</div>
+        </footer>
+    </div>
+</body>
+</html>
